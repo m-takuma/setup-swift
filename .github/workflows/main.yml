@@ -10,7 +10,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Hello world action step
-        uses: ./action.yml
+        uses: ./
         id: hello
         with:
           who-to-greet: 'Mona the Octocat'
