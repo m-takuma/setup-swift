@@ -30881,6 +30881,12 @@ async function run () {
     core.debug('Unsupported OS');
     core.setFailed('Unsupported OS');
   }
+  core.info('Swift installed main');
+  // await exec.exec('swift', ['--version']);
+  const {exitCode, stdout, stderr } = await exec.getExecOutput('swift', ['--version']);
+  core.info(`stdout: ${stdout}`);
+  core.info(`stderr: ${stderr}`);
+  core.info(`exitCode: ${exitCode}`);
 }
 
 
