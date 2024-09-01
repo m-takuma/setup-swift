@@ -28806,7 +28806,7 @@ async function setup_swift_on_linux(swift_version) {
 async function download_swift_on_linux(swift_version) {
     const url = await get_swift_pkg_url(swift_version);
     core.info(`Downloading Swift package from ${url}`);
-    const pkg_path = tool_cache.downloadTool(url);
+    const pkg_path = await tool_cache.downloadTool(url);
     core.info(`Downloaded Swift package to ${pkg_path}`);
     return pkg_path;
 }
