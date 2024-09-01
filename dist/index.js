@@ -30837,6 +30837,13 @@ const core = __nccwpck_require__(272);
 const exec = __nccwpck_require__(8018);
 
 async function run () {
+  core.info(`Platform: ${process.platform}`);
+  core.info(`Arch: ${process.arch}`);
+  core.info(`OS Release: ${process.release}`);
+  core.info(`OS Type: ${process.type}`);
+  core.info(`IS_WINDOWS: ${IS_WINDOWS}`);
+  core.info(`IS_MAC: ${IS_MAC}`);
+  core.info(`IS_LINUX: ${IS_LINUX}`);
   if (IS_MAC) {
     console.log('Setting up Swift on macOS');
     core.debug('Setting up Swift on macOS');
@@ -30850,6 +30857,7 @@ async function run () {
     core.debug('Setting up Swift on Windows');
     core.setFailed('Windows is not supported');
   } else {
+    core.info("ここに来ている")
     console.log('Unsupported OS');
     core.debug('Unsupported OS');
     core.setFailed('Unsupported OS');
