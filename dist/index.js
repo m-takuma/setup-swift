@@ -28930,22 +28930,22 @@ async function get_swift_pkg_linux_url(swift_version) {
     if (os_id === 'ubuntu') {
         if (['20.04', '22.04', '23.04', '24.04'].includes(os_version_id) || os_version_id === '18.04' && IS_X64) {
             platform_name = 'ubuntu' + os_version_id.replace('.', '') + arch;
-            pkg_name = `swift-${swift_version}-RELEASE-${os_id}${os_version_id}.tar.gz`;
+            pkg_name = `swift-${swift_version}-RELEASE-${os_id}${os_version_id}`;
         } else {
             core.error(`Unsupported Ubuntu version ${os_version_id}`);
         }
     } else if (os_id === 'amzn' && os_version_id === '2') {
         platform_name = 'amazonlinux2' + arch;
-        pkg_name = `swift-${swift_version}-RELEASE-${platform_name}.tar.gz`;
+        pkg_name = `swift-${swift_version}-RELEASE-${platform_name}`;
     } else if (os_id === 'amzn' && os_version_id === '2023') {
         platform_name = 'fedora39' + arch;
-        pkg_name = `swift-${swift_version}-RELEASE-${platform_name}.tar.gz`;
+        pkg_name = `swift-${swift_version}-RELEASE-${platform_name}`;
     } else {
         core.error(`Unsupported OS ${os_id} ${os_version_id}`);
     }
     core.debug(`platform_name: ${platform_name}`);
     core.debug(`pkg_name: ${pkg_name}`);
-    const url = `https://download.swift.org/swift-${swift_version}-release/${platform_name}/swift-${swift_version}-RELEASE/${pkg_name}`;
+    const url = `https://download.swift.org/swift-${swift_version}-release/${platform_name}/swift-${swift_version}-RELEASE/${pkg_name}.tar.gz`;
     core.info(`Swift package URL: ${url}`);
     return { url, pkg_name };
 }
