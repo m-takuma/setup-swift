@@ -28814,11 +28814,14 @@ async function download_swift_on_linux(swift_version) {
 
 async function install_swift_on_linux(pkg_path, package_name, swift_version) {
     core.info(`Installing Swift from ${pkg_path}`);
-    const pkg_extracted_path = await tool_cache.extractTar(pkg_path);
-    core.info(`Extracted Swift to ${pkg_extracted_path}`);
-    const {stdout} = await exec.getExecOutput('ll', [`${pkg_extracted_path}/`]);
-    core.info(`stdout: ${stdout}`);
-    core.addPath(`${pkg_extracted_path}/${package_name}/usr/bin`);
+    let toolPath = tool_cache.find('swift', swift_version);
+    if (!toolPath) {
+        const pkg_extracted_path = await tool_cache.extractTar(pkg_path);
+        toolPath = await tool_cache.cacheDir(pkg_extracted_path, 'swift', swift_version);
+        core.info(`Extracted Swift to ${pkg_extracted_path}`);
+        core.info(`Cached Swift to ${toolPath}`);
+    }
+    core.addPath(`${toolPath}/${package_name}/usr/bin`);
     core.info('Swift installed');
 }
 
