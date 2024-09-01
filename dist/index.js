@@ -28930,7 +28930,8 @@ async function get_swift_pkg_linux_url(swift_version) {
     }
     core.debug(`platform_name: ${platform_name}`);
     core.debug(`pkg_name: ${pkg_name}`);
-    return `https://download.swift.org/swift-${swift_version}-release/${platform_name}/swift-${swift_version}-RELEASE/${pkg_name}`;
+    const url = `https://download.swift.org/swift-${swift_version}-release/${platform_name}/swift-${swift_version}-RELEASE/${pkg_name}`;
+    core.info(`Swift package URL: ${url}`);
 }
 
 module.exports = {
