@@ -31094,20 +31094,24 @@ var __webpack_exports__ = {};
 const core = __nccwpck_require__(272);
 const github = __nccwpck_require__(1728);
 
-try {
-  // `who-to-greet` input defined in action metadata file
-  const nameToGreet = core.getInput('who-to-greet');
-  console.log(`Hello ${nameToGreet}!`);
-  const time = (new Date()).toTimeString();
-  core.setOutput("time", time);
-  // Get the JSON webhook payload for the event that triggered the workflow
-  const payload = JSON.stringify(github.context.payload, undefined, 2)
-  console.log(`The event payload: ${payload}`);
-} catch (error) {
-  core.setFailed(error.message);
+const is_windows = process.platform === "win32";
+const is_mac = process.platform === "darwin";
+const is_linux = process.platform === "linux";
+
+function run () {
+  if (is_mac) {
+    console.log('Setting up Swift on macOS');
+    core.debug('Setting up Swift on macOS');
+  } else if (is_linux) {
+    console.log('Setting up Swift on Linux');
+    core.debug('Setting up Swift on Linux');
+  } else if (is_windows) {
+    console.log('Setting up Swift on Windows');
+    core.debug('Setting up Swift on Windows');
+  }
 }
 
-
+run();
 })();
 
 module.exports = __webpack_exports__;
