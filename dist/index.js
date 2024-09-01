@@ -30880,6 +30880,9 @@ async function run () {
     core.debug('Unsupported OS');
     core.setFailed('Unsupported OS');
   }
+  // swift --version
+  const {stdout} = await exec.getExecOutput('swift', ['--version']);
+  core.info(stdout);
 }
 
 
