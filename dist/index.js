@@ -30761,16 +30761,7 @@ async function get_swift_pkg_url(swift_version) {
 }
 
 async function get_swift_pkg_linux_url(swift_version) {
-    const options = {};
-    options.listeners = {
-        stdout: (data) => {
-            myOutput += data.toString();
-        },
-        stderr: (data) => {
-            myError += data.toString();
-        }
-    };
-    const os_release = await exec.exec('cat', ['/etc/os-release'], options);
+    const os_release = await exec.getExecOutput('cat', ['/etc/os-release']);
     const os_id = os_release.match(/ID="(.*)"/)[1];
     const os_version_id = os_release.match(/VERSION_ID="(.*)"/)[1];
     const arch = IS_AARCH64 ? '-aarch64' : '';
