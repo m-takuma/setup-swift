@@ -8,6 +8,7 @@ async function download_swift_on_mac(swift_version) {
 }
 
 async function install_swift_on_mac(pkg_path) {
+    // TODO: Linuxを参考にして要修正
     const pkg_extracted_path = await tool_cache.extractTar(pkg_path);
     core.addPath(`${pkg_extracted_path}/usr/bin`);
 }

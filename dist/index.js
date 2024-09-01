@@ -28806,23 +28806,23 @@ async function setup_swift_on_linux(swift_version) {
 
 async function download_swift_on_linux(swift_version) {
     const { url, pkg_name } = await get_swift_pkg_url(swift_version);
-    core.info(`Downloading Swift package from ${url}`);
+    core.debug(`Downloading Swift package from ${url}`);
     const pkg_path = await tool_cache.downloadTool(url);
-    core.info(`Downloaded Swift package to ${pkg_path}`);
+    core.debug(`Downloaded Swift package to ${pkg_path}`);
     return { pkg_path, pkg_name };
 }
 
 async function install_swift_on_linux(pkg_path, package_name, swift_version) {
-    core.info(`Installing Swift from ${pkg_path}`);
+    core.debug(`Installing Swift from ${pkg_path}`);
     let toolPath = tool_cache.find('swift', swift_version);
     if (!toolPath) {
         const pkg_extracted_path = await tool_cache.extractTar(pkg_path);
         toolPath = await tool_cache.cacheDir(pkg_extracted_path, 'swift', swift_version);
-        core.info(`Extracted Swift to ${pkg_extracted_path}`);
-        core.info(`Cached Swift to ${toolPath}`);
+        core.debug(`Extracted Swift to ${pkg_extracted_path}`);
+        core.debug(`Cached Swift to ${toolPath}`);
     }
     const binPath = `${toolPath}/${package_name}/usr/bin`;
-    core.info(`Adding ${binPath} to PATH`);
+    core.debug(`Adding ${binPath} to PATH`);
     core.addPath(binPath);
     core.info('Swift installed');
 }
@@ -28847,6 +28847,7 @@ async function download_swift_on_mac(swift_version) {
 }
 
 async function install_swift_on_mac(pkg_path) {
+    // TODO: Linuxを参考にして要修正
     const pkg_extracted_path = await tool_cache.extractTar(pkg_path);
     core.addPath(`${pkg_extracted_path}/usr/bin`);
 }
@@ -30874,45 +30875,29 @@ const core = __nccwpck_require__(272);
 const exec = __nccwpck_require__(8018);
 
 async function run () {
-  core.info(`Platform: ${process.platform}`);
-  core.info(`Arch: ${process.arch}`);
-  core.info(`OS Release: ${process.release.name}`);
-  core.info(`IS_WINDOWS: ${IS_WINDOWS}`);
-  core.info(`IS_MAC: ${IS_MAC}`);
-  core.info(`IS_LINUX: ${IS_LINUX}`);
   if (IS_MAC) {
-    console.log('Setting up Swift on macOS');
+    core.info('Setting up Swift on macOS');
     core.debug('Setting up Swift on macOS');
     await setup_swift_on_mac('5.10.1');
   } else if (IS_LINUX) {
-    console.log('Setting up Swift on Linux');
+    core.info('Setting up Swift on Linux');
     core.debug('Setting up Swift on Linux');
     await setup_swift_on_linux('5.10.1');
   } else if (IS_WINDOWS) {
-    console.log('Setting up Swift on Windows');
     core.debug('Setting up Swift on Windows');
     core.setFailed('Windows is not supported');
   } else {
-    core.info("ここに来ている")
-    console.log('Unsupported OS');
     core.debug('Unsupported OS');
     core.setFailed('Unsupported OS');
   }
-  core.info('Swift installed main');
-  // await exec.exec('swift', ['--version']);
-  const {exitCode, stdout, stderr } = await exec.getExecOutput('swift', ['--version']);
-  // which swift
-  const {exitCode: whichExitCode, stdout: whichStdout, stderr: whichStderr } = await exec.getExecOutput('which', ['swift']);
-  core.info(`which exitCode: ${whichExitCode}`);
-  core.info(`which stdout: ${whichStdout}`);
-  core.info(`which stderr: ${whichStderr}`);
-  core.info(`stdout: ${stdout}`);
-  core.info(`stderr: ${stderr}`);
-  core.info(`exitCode: ${exitCode}`);
+  const { stdout: swift_version_out } = await exec.getExecOutput('swift', ['--version']);
+  const { stdout: which_swift_out } = await exec.getExecOutput('which', ['swift']);
+  core.info(`swift --version: ${swift_version_out}`);
+  core.info(`which swift: ${which_swift_out}`);
 }
 
-
 run();
+
 })();
 
 module.exports = __webpack_exports__;
