@@ -17,7 +17,7 @@ async function download_swift_on_linux(swift_version) {
 
 async function install_swift_on_linux(pkg_path) {
     core.info(`Installing Swift from ${pkg_path}`);
-    const pkg_extracted_path = tool_cache.extractTar(pkg_path);
+    const pkg_extracted_path = await tool_cache.extractTar(pkg_path);
     core.info(`Extracted Swift to ${pkg_extracted_path}`);
     core.addPath(`${pkg_extracted_path}/usr/bin`);
     core.info('Swift installed');

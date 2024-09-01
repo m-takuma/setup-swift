@@ -8,7 +8,7 @@ async function download_swift_on_mac(swift_version) {
 }
 
 async function install_swift_on_mac(pkg_path) {
-    const pkg_extracted_path = tool_cache.extractTar(pkg_path);
+    const pkg_extracted_path = await tool_cache.extractTar(pkg_path);
     core.addPath(`${pkg_extracted_path}/usr/bin`);
 }
 
