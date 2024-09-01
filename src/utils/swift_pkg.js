@@ -27,10 +27,12 @@ async function get_swift_pkg_linux_url(swift_version) {
         const [key, value] = line.split('=');
         core.info(`key: ${key}`);
         core.info(`value: ${value}`);
-        // valueの""を削除して、Dictionaryに追加
-        console.log(typeof value);
-        console.log(value);
-        acc[key] = value.replace("\"", '');
+        if (typeof value === 'string') {
+            acc[key] = value.replace("\"", '');
+
+        } else {
+            acc[key] = value;
+        }
         return acc;
     });
     core.info(`test: ${test}`);
