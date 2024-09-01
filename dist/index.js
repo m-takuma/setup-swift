@@ -28912,7 +28912,7 @@ async function get_swift_pkg_linux_url(swift_version) {
             acc[key] = value;
         }
         return acc;
-    });
+    }, {});
     core.info(`test: ${test}`);
     const os_release = stdout;
     const os_id = os_release.match(/^ID="(.*)"/);
