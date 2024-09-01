@@ -28901,10 +28901,8 @@ async function get_swift_pkg_linux_url(swift_version) {
     const { stdout } = await exec.getExecOutput('cat', ['/etc/os-release']);
     core.debug(`stdout: ${stdout}`);
     // 改行文字で区切って配列にする。=で区切ってDictionaryにする。
-    const test = stdout.split('\n').reduce((acc, line) => {
+    const os_release = stdout.split('\n').reduce((acc, line) => {
         const [key, value] = line.split('=');
-        core.info(`key: ${key}`);
-        core.info(`value: ${value}`);
         if (typeof value === 'string') {
             acc[key] = value.replace("\"", '');
 
@@ -28913,17 +28911,9 @@ async function get_swift_pkg_linux_url(swift_version) {
         }
         return acc;
     }, {});
-    core.info(`test: ${test}`);
-    const os_release = stdout;
-    const os_id = os_release.match(/^ID="(.*)"/);
-    core.info(`os_id: ${os_id}`);
-    const os_idTest = os_release.match(/\bID="(.*)"/);
-    core.info(`os_idTest: ${os_idTest}`);
-    const os_version_id = os_release.match(/VERSION_ID="(.*)"/);
-    core.info(`os_version_id: ${os_version_id}`);
-    core.setFailed('Failed to get OS information');
+    const os_id = os_release['ID'];
+    const os_version_id = os_release['VERSION_ID']
     const arch = IS_AARCH64 ? '-aarch64' : '';
-    core.debug(`os_release: ${os_release}`);
     core.debug(`os_id: ${os_id}`);
     core.debug(`os_version_id: ${os_version_id}`);
     core.debug(`arch: ${arch}`);
