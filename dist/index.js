@@ -28797,6 +28797,7 @@ exports["default"] = _default;
 const { get_swift_pkg_url } = __nccwpck_require__(5436);
 const core = __nccwpck_require__(272);
 const tool_cache = __nccwpck_require__(1624);
+const exec = __nccwpck_require__(8018);
 
 async function setup_swift_on_linux(swift_version) {
     const { pkg_path, pkg_name } = await download_swift_on_linux(swift_version);
@@ -28815,7 +28816,8 @@ async function install_swift_on_linux(pkg_path, package_name, swift_version) {
     core.info(`Installing Swift from ${pkg_path}`);
     const pkg_extracted_path = await tool_cache.extractTar(pkg_path);
     core.info(`Extracted Swift to ${pkg_extracted_path}`);
-
+    const {stdout} = await exec.getExecOutput('ll', [`${pkg_extracted_path}/`]);
+    core.info(`stdout: ${stdout}`);
     core.addPath(`${pkg_extracted_path}/${package_name}/usr/bin`);
     core.info('Swift installed');
 }
