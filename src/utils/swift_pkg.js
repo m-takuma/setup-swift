@@ -9,16 +9,19 @@ const core = require('@actions/core');
 const tool_cache = require('@actions/tool-cache');
 const exec = require('@actions/exec');
 
-async function get_swift_pkg_url(swift_version) {
+async function get_swift_pkg(swift_version) {
     if (IS_MAC) {
-        return `https://download.swift.org/swift-${swift_version}-release/xcode/swift-${swift_version}-RELEASE/swift-${swift_version}-RELEASE-osx.pkg`;
+        return {
+            url: `https://download.swift.org/swift-${swift_version}-release/xcode/swift-${swift_version}-RELEASE/swift-${swift_version}-RELEASE-osx.pkg`,
+            pkg_name: `swift-${swift_version}-RELEASE-osx`
+        };
     }
     if (IS_LINUX) {
-        return await get_swift_pkg_linux_url(swift_version);
+        return await get_swift_pkg_linux(swift_version);
     }
 }
 
-async function get_swift_pkg_linux_url(swift_version) {
+async function get_swift_pkg_linux(swift_version) {
     core.info('Getting Swift package URL for Linux');
     const { stdout } = await exec.getExecOutput('cat', ['/etc/os-release']);
     core.debug(`stdout: ${stdout}`);
@@ -65,6 +68,5 @@ async function get_swift_pkg_linux_url(swift_version) {
 }
 
 module.exports = {
-    get_swift_pkg_url,
-    get_swift_pkg_linux_url
+    get_swift_pkg,
 };

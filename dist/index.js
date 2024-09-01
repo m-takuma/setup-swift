@@ -28794,37 +28794,41 @@ exports["default"] = _default;
 /***/ 836:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const { get_swift_pkg_url } = __nccwpck_require__(5436);
+const { get_swift_pkg } = __nccwpck_require__(5436);
 const core = __nccwpck_require__(272);
 const tool_cache = __nccwpck_require__(1624);
 const exec = __nccwpck_require__(8018);
+const { verifySwift } = __nccwpck_require__(1245);
 
 async function setup_swift_on_linux(swift_version) {
-    const { pkg_path, pkg_name } = await download_swift_on_linux(swift_version);
-    await install_swift_on_linux(pkg_path, pkg_name, swift_version);
-}
-
-async function download_swift_on_linux(swift_version) {
-    const { url, pkg_name } = await get_swift_pkg_url(swift_version);
-    core.debug(`Downloading Swift package from ${url}`);
-    const pkg_path = await tool_cache.downloadTool(url);
-    core.debug(`Downloaded Swift package to ${pkg_path}`);
-    return { pkg_path, pkg_name };
-}
-
-async function install_swift_on_linux(pkg_path, package_name, swift_version) {
-    core.debug(`Installing Swift from ${pkg_path}`);
-    let toolPath = tool_cache.find('swift', swift_version);
+    const { url, pkg_name } = await get_swift_pkg(swift_version);
+    let toolPath = tool_cache.find(pkg_name, swift_version);
     if (!toolPath) {
-        const pkg_extracted_path = await tool_cache.extractTar(pkg_path);
-        toolPath = await tool_cache.cacheDir(pkg_extracted_path, 'swift', swift_version);
-        core.debug(`Extracted Swift to ${pkg_extracted_path}`);
-        core.debug(`Cached Swift to ${toolPath}`);
+        const { pkg_path, signature_path } = await download_swift_on_linux(url);
+        await verifySwift(pkg_path, signature_path);
+        toolPath = await install_swift_on_linux(pkg_path, pkg_name, swift_version);
     }
-    const binPath = `${toolPath}/${package_name}/usr/bin`;
+    const binPath = `${toolPath}/${pkg_name}/usr/bin`;
     core.debug(`Adding ${binPath} to PATH`);
     core.addPath(binPath);
     core.info('Swift installed');
+}
+
+async function download_swift_on_linux(url) {
+    core.debug(`Downloading Swift package from ${url}`);
+    const pkg_path = await tool_cache.downloadTool(url);
+    const signature_path = await tool_cache.downloadTool(`${url}.sig`);
+    core.debug(`Downloaded Swift package to ${pkg_path}`);
+    return { pkg_path, signature_path };
+}
+
+async function install_swift_on_linux(pkg_path, pkg_name, swift_version) {
+    core.debug(`Installing Swift from ${pkg_path}`);
+    const pkg_extracted_path = await tool_cache.extractTar(pkg_path);
+    toolPath = await tool_cache.cacheDir(pkg_extracted_path, pkg_name, swift_version);
+    core.debug(`Extracted Swift to ${pkg_extracted_path}`);
+    core.debug(`Cached Swift to ${toolPath}`);
+    return toolPath;
 }
 
 module.exports = {
@@ -28896,16 +28900,19 @@ const core = __nccwpck_require__(272);
 const tool_cache = __nccwpck_require__(1624);
 const exec = __nccwpck_require__(8018);
 
-async function get_swift_pkg_url(swift_version) {
+async function get_swift_pkg(swift_version) {
     if (IS_MAC) {
-        return `https://download.swift.org/swift-${swift_version}-release/xcode/swift-${swift_version}-RELEASE/swift-${swift_version}-RELEASE-osx.pkg`;
+        return {
+            url: `https://download.swift.org/swift-${swift_version}-release/xcode/swift-${swift_version}-RELEASE/swift-${swift_version}-RELEASE-osx.pkg`,
+            pkg_name: `swift-${swift_version}-RELEASE-osx`
+        };
     }
     if (IS_LINUX) {
-        return await get_swift_pkg_linux_url(swift_version);
+        return await get_swift_pkg_linux(swift_version);
     }
 }
 
-async function get_swift_pkg_linux_url(swift_version) {
+async function get_swift_pkg_linux(swift_version) {
     core.info('Getting Swift package URL for Linux');
     const { stdout } = await exec.getExecOutput('cat', ['/etc/os-release']);
     core.debug(`stdout: ${stdout}`);
@@ -28952,8 +28959,41 @@ async function get_swift_pkg_linux_url(swift_version) {
 }
 
 module.exports = {
-    get_swift_pkg_url,
-    get_swift_pkg_linux_url
+    get_swift_pkg,
+};
+
+/***/ }),
+
+/***/ 1245:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+const core = __nccwpck_require__(272);
+const exec = __nccwpck_require__(8018);
+const tool_cache = __nccwpck_require__(1624);
+
+
+async function import_pgp_keys() {
+    const keys_path = await tool_cache.downloadTool('https://swift.org/keys/all-keys.asc')
+    await exec.exec('gpg', ['--import', keys_path]);
+}
+
+async function refresh_keys() {
+    // gpg --keyserver hkp://keyserver.ubuntu.com --refresh-keys Swift
+    await exec.exec('gpg', ['--keyserver', 'hkp://keyserver.ubuntu.com', '--refresh-keys', 'Swift']);
+}
+
+async function verifySwift(pkgPath, signaturePath) {
+    // Good signature example:
+    // gpg: Good signature from "Swift Automatic Signing Key #4 <swift-infrastructure@forums.swift.org>"
+    // THIS WARNING IS HARMLESS:
+    // WARNING: This key is not certified with a trusted signature
+    await import_pgp_keys();
+    await refresh_keys();
+    await exec.exec('gpg', ['--verify', signaturePath, pkgPath]);
+}
+
+module.exports = {
+    verifySwift
 };
 
 /***/ }),
