@@ -22,6 +22,13 @@ async function get_swift_pkg_linux_url(swift_version) {
     core.info('Getting Swift package URL for Linux');
     const { stdout } = await exec.getExecOutput('cat', ['/etc/os-release']);
     core.debug(`stdout: ${stdout}`);
+    // 改行文字で区切って配列にする。=で区切ってDictionaryにする。
+    const test = stdout.split('\n').reduce((acc, line) => {
+        const [key, value] = line.split('=');
+        acc[key] = value.replace(/"/g, '');
+        return acc;
+    }, {});
+    core.info(`test: ${test}`);
     const os_release = stdout;
     const os_id = os_release.match(/^ID="(.*)"/);
     core.info(`os_id: ${os_id}`);
