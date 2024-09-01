@@ -14,7 +14,6 @@ async function install_swift_on_mac(pkg_path) {
 }
 
 async function setup_swift_on_mac(swift_version) {
-    return
     const pkg_path = await download_swift_on_mac(swift_version);
     const swift_path = await install_swift_on_mac(pkg_path);
     core.addPath(`${pkg_extracted_path}/usr/bin`);

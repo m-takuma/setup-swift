@@ -28800,13 +28800,11 @@ const tool_cache = __nccwpck_require__(1624);
 
 async function setup_swift_on_linux(swift_version) {
     const pkg_path = await download_swift_on_linux(swift_version);
-    return
     await install_swift_on_linux(pkg_path);
 }
 
 async function download_swift_on_linux(swift_version) {
     const url = await get_swift_pkg_url(swift_version);
-    return
     const pkg_path = tool_cache.downloadTool(url);
     return pkg_path;
 }
@@ -28843,7 +28841,6 @@ async function install_swift_on_mac(pkg_path) {
 }
 
 async function setup_swift_on_mac(swift_version) {
-    return
     const pkg_path = await download_swift_on_mac(swift_version);
     const swift_path = await install_swift_on_mac(pkg_path);
     core.addPath(`${pkg_extracted_path}/usr/bin`);
