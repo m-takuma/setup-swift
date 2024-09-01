@@ -20,7 +20,7 @@ async function verifySwift(pkgPath, signaturePath) {
     //   gpg: Good signature from "Swift Automatic Signing Key #4 <swift-infrastructure@forums.swift.org>"
     await import_pgp_keys();
     await refresh_keys();
-    await exec.exec('gpg', ['--verify', signaturePath]);
+    await exec.exec('gpg', ['--verify', signaturePath, pkgPath]);
 }
 
 module.exports = {
