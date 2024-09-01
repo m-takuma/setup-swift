@@ -28794,14 +28794,14 @@ exports["default"] = _default;
 /***/ 836:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const { get_swift_pkg_url } = __nccwpck_require__(5436);
+const { get_swift_pkg } = __nccwpck_require__(5436);
 const core = __nccwpck_require__(272);
 const tool_cache = __nccwpck_require__(1624);
 const exec = __nccwpck_require__(8018);
 const { verifySwift } = __nccwpck_require__(1245);
 
 async function setup_swift_on_linux(swift_version) {
-    const { url, pkg_name } = await get_swift_pkg_url(swift_version);
+    const { url, pkg_name } = await get_swift_pkg(swift_version);
     let toolPath = tool_cache.find(pkg_name, swift_version);
     if (!toolPath) {
         const { pkg_path, signature_path } = await download_swift_on_linux(url);

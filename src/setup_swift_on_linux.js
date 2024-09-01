@@ -1,11 +1,11 @@
-const { get_swift_pkg_url } = require('./utils/swift_pkg');
+const { get_swift_pkg } = require('./utils/swift_pkg');
 const core = require('@actions/core');
 const tool_cache = require('@actions/tool-cache');
 const exec = require('@actions/exec');
 const { verifySwift } = require('./utils/verify');
 
 async function setup_swift_on_linux(swift_version) {
-    const { url, pkg_name } = await get_swift_pkg_url(swift_version);
+    const { url, pkg_name } = await get_swift_pkg(swift_version);
     let toolPath = tool_cache.find(pkg_name, swift_version);
     if (!toolPath) {
         const { pkg_path, signature_path } = await download_swift_on_linux(url);
