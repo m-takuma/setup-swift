@@ -1,4 +1,5 @@
 import * as core from '@actions/core';
+import * as exec from '@actions/exec';
 import {
     IS_MAC,
     IS_LINUX,
