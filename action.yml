@@ -1,14 +1,16 @@
-name: 'Hello World'
-description: 'Greet someone and record the time'
+name: 'Setup Swift'
+description: 'Set up a specific version of Swift'
 inputs:
-  who-to-greet:  # id of input
-    description: 'Who to greet'
-    required: true
-    default: 'World'
+  swift-version:  # id of input
+    description: 'The version of Swift to set up'
 outputs:
-  time: # id of output
-    description: 'The time we greeted you'
+  swift-version:  # id of output
+    description: 'The version of Swift that was set up'
+  cache-hit:
+    description: 'Whether the Swift version was found in the cache'
+  swift-path:
+    description: 'The path to the Swift executable'
 runs:
-  using: node20
-  main: dist/index.js
+  using: 'node20'
+  main: 'dist/index.js'
 
