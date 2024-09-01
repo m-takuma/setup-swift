@@ -23,8 +23,11 @@ async function get_swift_pkg_linux_url(swift_version) {
     const { stdout } = await exec.getExecOutput('cat', ['/etc/os-release']);
     core.debug(`stdout: ${stdout}`);
     const os_release = stdout;
-    const os_id = os_release.match(/^ID="(.*)"/)[0];
-    const os_version_id = os_release.match(/^VERSION_ID="(.*)"/)[0];
+    const os_id = os_release.match(/^ID=".*"/);
+    core.info(`os_id: ${os_id}`);
+    const os_version_id = os_release.match(/^VERSION_ID="(.*)"/);
+    core.info(`os_version_id: ${os_version_id}`);
+    core.setFailed('Failed to get OS information');
     const arch = IS_AARCH64 ? '-aarch64' : '';
     core.debug(`os_release: ${os_release}`);
     core.debug(`os_id: ${os_id}`);
