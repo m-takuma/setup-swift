@@ -1,13 +1,14 @@
-import * as core from '@actions/core';
-import { setup_swift_on_mac } from './setup_swift_on_mac';
-import { setup_swift_on_linux } from './setup_swift_on_linux';
-import {
+const { setup_swift_on_mac } = require('./setup_swift_on_mac');
+const { setup_swift_on_linux } = require('./setup_swift_on_linux');
+const {
   IS_WINDOWS,
   IS_MAC,
   IS_LINUX,
-} from './utils/os';
+} = require('./utils/os');
+const core = require('@actions/core');
+const exec = require('@actions/exec');
 
-function run () {
+async function run () {
   if (IS_MAC) {
     console.log('Setting up Swift on macOS');
     core.debug('Setting up Swift on macOS');

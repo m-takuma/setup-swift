@@ -28791,6 +28791,134 @@ exports["default"] = _default;
 
 /***/ }),
 
+/***/ 836:
+/***/ ((__unused_webpack_module, __unused_webpack_exports, __nccwpck_require__) => {
+
+const { get_swift_pkg_url } = __nccwpck_require__(5436);
+const core = __nccwpck_require__(272);
+const tool_cache = __nccwpck_require__(1624);
+
+ async function setup_swift_on_linux(swift_version) {
+    const pkg_path = await download_swift_on_linux(swift_version);
+    return
+    await install_swift_on_linux(pkg_path);
+}
+
+async function download_swift_on_linux(swift_version) {
+    const url = await get_swift_pkg_url(swift_version);
+    return
+    const pkg_path = tool_cache.downloadTool(url);
+    return pkg_path;
+}
+
+async function install_swift_on_linux(pkg_path) {
+    const pkg_extracted_path = tool_cache.extractTar(pkg_path);
+    core.addPath(`${pkg_extracted_path}/usr/bin`);
+    return swift_path;
+}
+
+
+
+/***/ }),
+
+/***/ 2549:
+/***/ ((__unused_webpack_module, __unused_webpack_exports, __nccwpck_require__) => {
+
+const tool_cache = __nccwpck_require__(1624);
+
+async function download_swift_on_mac(swift_version) {
+    const url = `https://download.swift.org/swift-${swift_version}-release/xcode/swift-${swift_version}-RELEASE/swift-${swift_version}-RELEASE-osx.pkg`
+    const pkg_path = await tool_cache.downloadTool(url);
+    return pkg_path;
+}
+
+async function install_swift_on_mac(pkg_path) {
+    const pkg_extracted_path = await tool_cache.extractTar(pkg_path);
+    const pkg_extracted_path_bin = `${pkg_extracted_path}/usr/bin`;
+    const swift_path = await tool_cache.cacheDir(pkg_extracted_path_bin, 'swift', '5.3.3');
+    return swift_path;
+}
+
+ async function setup_swift_on_mac(swift_version) {
+    return
+    const pkg_path = await download_swift_on_mac(swift_version);
+    const swift_path = await install_swift_on_mac(pkg_path);
+    core.addPath(`${pkg_extracted_path}/usr/bin`);
+    return swift_path;
+}
+
+/***/ }),
+
+/***/ 1980:
+/***/ (() => {
+
+ const IS_WINDOWS = process.platform === "win32";
+ const IS_MAC = process.platform === "darwin";
+ const IS_LINUX = process.platform === "linux";
+ const IS_AARCH64 = process.arch === "arm64";
+ const IS_X64 = process.arch === "x64";
+
+/***/ }),
+
+/***/ 5436:
+/***/ ((__unused_webpack_module, __unused_webpack_exports, __nccwpck_require__) => {
+
+const  {
+    IS_MAC,
+    IS_LINUX,
+    IS_AARCH64,
+    IS_X64
+} = __nccwpck_require__(1980);
+
+const core = __nccwpck_require__(272);
+const tool_cache = __nccwpck_require__(1624);
+const exec = __nccwpck_require__(8018);
+
+ async function get_swift_pkg_url(swift_version) {
+    if (IS_MAC) {
+        return `https://download.swift.org/swift-${swift_version}-release/xcode/swift-${swift_version}-RELEASE/swift-${swift_version}-RELEASE-osx.pkg`;
+    }
+    if (IS_LINUX) {
+        return await get_swift_pkg_linux_url(swift_version);
+    }
+}
+
+async function get_swift_pkg_linux_url(swift_version) {
+    const { stdout } = String(await exec.getExecOutput('cat', ['/etc/os-release']));
+    core.debug(`stdout: ${stdout}`);
+    const os_release = stdout;
+    const os_id = os_release.match(/ID="(.*)"/)[1];
+    const os_version_id = os_release.match(/VERSION_ID="(.*)"/)[1];
+    const arch = IS_AARCH64 ? '-aarch64' : '';
+    core.debug(`os_release: ${os_release}`);
+    core.debug(`os_id: ${os_id}`);
+    core.debug(`os_version_id: ${os_version_id}`);
+    core.debug(`arch: ${arch}`);
+    let platform_name = '';
+    let pkg_name = '';
+    if (os_id === 'ubuntu') {
+        if (os_version_id in ['20.04', '22.04', '23.04', '24.04'] || os_version_id === '18.04' && IS_X64) {
+            platform_name = 'ubuntu' + os_version_id.replace('.', '') + arch;
+            pkg_name = `swift-${swift_version}-RELEASE-${os_id}${os_version_id}.tar.gz`;
+        } else {
+            core.error(`Unsupported Ubuntu version ${os_version_id}`);
+        }
+    } else if (os_id === 'amzn' && os_version_id === '2') {
+        platform_name = 'amazonlinux2' + arch;
+        pkg_name = `swift-${swift_version}-RELEASE-${platform_name}.tar.gz`;
+    } else if (os_id === 'amzn' && os_version_id === '2023') {
+        platform_name = 'fedora39' + arch;
+        pkg_name = `swift-${swift_version}-RELEASE-${platform_name}.tar.gz`;
+    } else {
+        core.error(`Unsupported OS ${os_id} ${os_version_id}`);
+    }
+    core.debug(`platform_name: ${platform_name}`);
+    core.debug(`pkg_name: ${pkg_name}`);
+    return `https://download.swift.org/swift-${swift_version}-release/${platform_name}/swift-${swift_version}-RELEASE/${pkg_name}`;
+}
+
+/***/ }),
+
 /***/ 9491:
 /***/ ((module) => {
 
@@ -30689,158 +30817,41 @@ module.exports = parseParams
 /******/ 	}
 /******/ 	
 /************************************************************************/
-/******/ 	/* webpack/runtime/make namespace object */
-/******/ 	(() => {
-/******/ 		// define __esModule on exports
-/******/ 		__nccwpck_require__.r = (exports) => {
-/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-/******/ 			}
-/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
-/******/ 		};
-/******/ 	})();
-/******/ 	
 /******/ 	/* webpack/runtime/compat */
 /******/ 	
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be in strict mode.
+// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
-"use strict";
-// ESM COMPAT FLAG
-__nccwpck_require__.r(__webpack_exports__);
+const { setup_swift_on_mac } = __nccwpck_require__(2549);
+const { setup_swift_on_linux } = __nccwpck_require__(836);
+const {
+  IS_WINDOWS,
+  IS_MAC,
+  IS_LINUX,
+} = __nccwpck_require__(1980);
+const core = __nccwpck_require__(272);
+const exec = __nccwpck_require__(8018);
 
-// EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
-var lib_core = __nccwpck_require__(272);
-;// CONCATENATED MODULE: ./src/setup_swift_on_mac.js
-const tool_cache = __nccwpck_require__(1624);
-
-async function download_swift_on_mac(swift_version) {
-    const url = `https://download.swift.org/swift-${swift_version}-release/xcode/swift-${swift_version}-RELEASE/swift-${swift_version}-RELEASE-osx.pkg`
-    const pkg_path = await tool_cache.downloadTool(url);
-    return pkg_path;
-}
-
-async function install_swift_on_mac(pkg_path) {
-    const pkg_extracted_path = await tool_cache.extractTar(pkg_path);
-    const pkg_extracted_path_bin = `${pkg_extracted_path}/usr/bin`;
-    const swift_path = await tool_cache.cacheDir(pkg_extracted_path_bin, 'swift', '5.3.3');
-    return swift_path;
-}
-
-async function setup_swift_on_mac(swift_version) {
-    return
-    const pkg_path = await download_swift_on_mac(swift_version);
-    const swift_path = await install_swift_on_mac(pkg_path);
-    core.addPath(`${pkg_extracted_path}/usr/bin`);
-    return swift_path;
-}
-// EXTERNAL MODULE: ./node_modules/@actions/exec/lib/exec.js
-var exec = __nccwpck_require__(8018);
-;// CONCATENATED MODULE: ./src/utils/os.js
-const IS_WINDOWS = process.platform === "win32";
-const IS_MAC = process.platform === "darwin";
-const IS_LINUX = process.platform === "linux";
-const IS_AARCH64 = process.arch === "arm64";
-const IS_X64 = process.arch === "x64";
-;// CONCATENATED MODULE: ./src/utils/swift_pkg.js
-
-
-
-
-
-async function get_swift_pkg_url(swift_version) {
-    if (IS_MAC) {
-        return `https://download.swift.org/swift-${swift_version}-release/xcode/swift-${swift_version}-RELEASE/swift-${swift_version}-RELEASE-osx.pkg`;
-    }
-    if (IS_LINUX) {
-        return await get_swift_pkg_linux_url(swift_version);
-    }
-}
-
-async function get_swift_pkg_linux_url(swift_version) {
-    const os_release = await exec.getExecOutput('cat', ['/etc/os-release']);
-    const os_id = os_release.match(/ID="(.*)"/)[1];
-    const os_version_id = os_release.match(/VERSION_ID="(.*)"/)[1];
-    const arch = IS_AARCH64 ? '-aarch64' : '';
-    lib_core.debug(`os_release: ${os_release}`);
-    lib_core.debug(`os_id: ${os_id}`);
-    lib_core.debug(`os_version_id: ${os_version_id}`);
-    lib_core.debug(`arch: ${arch}`);
-    let platform_name = '';
-    let pkg_name = '';
-    if (os_id === 'ubuntu') {
-        if (os_version_id in ['20.04', '22.04', '23.04', '24.04'] || os_version_id === '18.04' && IS_X64) {
-            platform_name = 'ubuntu' + os_version_id.replace('.', '') + arch;
-            pkg_name = `swift-${swift_version}-RELEASE-${os_id}${os_version_id}.tar.gz`;
-        } else {
-            lib_core.error(`Unsupported Ubuntu version ${os_version_id}`);
-        }
-    } else if (os_id === 'amzn' && os_version_id === '2') {
-        platform_name = 'amazonlinux2' + arch;
-        pkg_name = `swift-${swift_version}-RELEASE-${platform_name}.tar.gz`;
-    } else if (os_id === 'amzn' && os_version_id === '2023') {
-        platform_name = 'fedora39' + arch;
-        pkg_name = `swift-${swift_version}-RELEASE-${platform_name}.tar.gz`;
-    } else {
-        lib_core.error(`Unsupported OS ${os_id} ${os_version_id}`);
-    }
-    lib_core.debug(`platform_name: ${platform_name}`);
-    lib_core.debug(`pkg_name: ${pkg_name}`);
-    return `https://download.swift.org/swift-${swift_version}-release/${platform_name}/swift-${swift_version}-RELEASE/${pkg_name}`;
-}
-// EXTERNAL MODULE: ./node_modules/@actions/tool-cache/lib/tool-cache.js
-var lib_tool_cache = __nccwpck_require__(1624);
-;// CONCATENATED MODULE: ./src/setup_swift_on_linux.js
-
-
-
-
-async function setup_swift_on_linux(swift_version) {
-    const pkg_path = await download_swift_on_linux(swift_version);
-    return
-    await install_swift_on_linux(pkg_path);
-}
-
-async function download_swift_on_linux(swift_version) {
-    const url = await get_swift_pkg_url(swift_version);
-    return
-    const pkg_path = lib_tool_cache.downloadTool(url);
-    return pkg_path;
-}
-
-async function install_swift_on_linux(pkg_path) {
-    const pkg_extracted_path = lib_tool_cache.extractTar(pkg_path);
-    lib_core.addPath(`${pkg_extracted_path}/usr/bin`);
-    return swift_path;
-}
-
-
-;// CONCATENATED MODULE: ./src/main.js
-
-
-
-
-
-function run () {
+async function run () {
   if (IS_MAC) {
     console.log('Setting up Swift on macOS');
-    lib_core.debug('Setting up Swift on macOS');
+    core.debug('Setting up Swift on macOS');
     setup_swift_on_mac('5.10.1');
   } else if (IS_LINUX) {
     console.log('Setting up Swift on Linux');
-    lib_core.debug('Setting up Swift on Linux');
+    core.debug('Setting up Swift on Linux');
     setup_swift_on_linux('5.10.1');
   } else if (IS_WINDOWS) {
     console.log('Setting up Swift on Windows');
-    lib_core.debug('Setting up Swift on Windows');
-    lib_core.setFailed('Windows is not supported');
+    core.debug('Setting up Swift on Windows');
+    core.setFailed('Windows is not supported');
   } else {
     console.log('Unsupported OS');
-    lib_core.debug('Unsupported OS');
-    lib_core.setFailed('Unsupported OS');
+    core.debug('Unsupported OS');
+    core.setFailed('Unsupported OS');
   }
 }
 

@@ -13,7 +13,7 @@ async function install_swift_on_mac(pkg_path) {
     return swift_path;
 }
 
-export async function setup_swift_on_mac(swift_version) {
+ async function setup_swift_on_mac(swift_version) {
     return
     const pkg_path = await download_swift_on_mac(swift_version);
     const swift_path = await install_swift_on_mac(pkg_path);

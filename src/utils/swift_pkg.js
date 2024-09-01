@@ -1,14 +1,15 @@
-import * as core from '@actions/core';
-import * as exec from '@actions/exec';
-import {
+const  {
     IS_MAC,
     IS_LINUX,
     IS_AARCH64,
     IS_X64
-} from './os';
+} = require('./os');
 
+const core = require('@actions/core');
+const tool_cache = require('@actions/tool-cache');
+const exec = require('@actions/exec');
 
-export async function get_swift_pkg_url(swift_version) {
+ async function get_swift_pkg_url(swift_version) {
     if (IS_MAC) {
         return `https://download.swift.org/swift-${swift_version}-release/xcode/swift-${swift_version}-RELEASE/swift-${swift_version}-RELEASE-osx.pkg`;
     }
@@ -18,7 +19,9 @@ export async function get_swift_pkg_url(swift_version) {
 }
 
 async function get_swift_pkg_linux_url(swift_version) {
-    const os_release = await exec.getExecOutput('cat', ['/etc/os-release']);
+    const { stdout } = String(await exec.getExecOutput('cat', ['/etc/os-release']));
+    core.debug(`stdout: ${stdout}`);
+    const os_release = stdout;
     const os_id = os_release.match(/ID="(.*)"/)[1];
     const os_version_id = os_release.match(/VERSION_ID="(.*)"/)[1];
     const arch = IS_AARCH64 ? '-aarch64' : '';

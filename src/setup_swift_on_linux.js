@@ -1,8 +1,8 @@
-import { get_swift_pkg_url } from './utils/swift_pkg'
-import * as core from '@actions/core';
-import * as tool_cache from '@actions/tool-cache';
+const { get_swift_pkg_url } = require('./utils/swift_pkg');
+const core = require('@actions/core');
+const tool_cache = require('@actions/tool-cache');
 
-export async function setup_swift_on_linux(swift_version) {
+ async function setup_swift_on_linux(swift_version) {
     const pkg_path = await download_swift_on_linux(swift_version);
     return
     await install_swift_on_linux(pkg_path);
