@@ -28792,13 +28792,13 @@ exports["default"] = _default;
 /***/ }),
 
 /***/ 836:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __nccwpck_require__) => {
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 const { get_swift_pkg_url } = __nccwpck_require__(5436);
 const core = __nccwpck_require__(272);
 const tool_cache = __nccwpck_require__(1624);
 
- async function setup_swift_on_linux(swift_version) {
+async function setup_swift_on_linux(swift_version) {
     const pkg_path = await download_swift_on_linux(swift_version);
     return
     await install_swift_on_linux(pkg_path);
@@ -28817,12 +28817,15 @@ async function install_swift_on_linux(pkg_path) {
     return swift_path;
 }
 
+module.exports = {
+    setup_swift_on_linux
+};
 
 
 /***/ }),
 
 /***/ 2549:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __nccwpck_require__) => {
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 const tool_cache = __nccwpck_require__(1624);
 
@@ -28839,13 +28842,17 @@ async function install_swift_on_mac(pkg_path) {
     return swift_path;
 }
 
- async function setup_swift_on_mac(swift_version) {
+async function setup_swift_on_mac(swift_version) {
     return
     const pkg_path = await download_swift_on_mac(swift_version);
     const swift_path = await install_swift_on_mac(pkg_path);
     core.addPath(`${pkg_extracted_path}/usr/bin`);
     return swift_path;
 }
+
+module.exports = {
+    setup_swift_on_mac
+};
 
 /***/ }),
 
@@ -28869,7 +28876,7 @@ module.exports = {
 /***/ }),
 
 /***/ 5436:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __nccwpck_require__) => {
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 const  {
     IS_MAC,
@@ -28882,7 +28889,7 @@ const core = __nccwpck_require__(272);
 const tool_cache = __nccwpck_require__(1624);
 const exec = __nccwpck_require__(8018);
 
- async function get_swift_pkg_url(swift_version) {
+async function get_swift_pkg_url(swift_version) {
     if (IS_MAC) {
         return `https://download.swift.org/swift-${swift_version}-release/xcode/swift-${swift_version}-RELEASE/swift-${swift_version}-RELEASE-osx.pkg`;
     }
@@ -28925,6 +28932,11 @@ async function get_swift_pkg_linux_url(swift_version) {
     core.debug(`pkg_name: ${pkg_name}`);
     return `https://download.swift.org/swift-${swift_version}-release/${platform_name}/swift-${swift_version}-RELEASE/${pkg_name}`;
 }
+
+module.exports = {
+    get_swift_pkg_url,
+    get_swift_pkg_linux_url
+};
 
 /***/ }),
 
@@ -30847,8 +30859,7 @@ const exec = __nccwpck_require__(8018);
 async function run () {
   core.info(`Platform: ${process.platform}`);
   core.info(`Arch: ${process.arch}`);
-  core.info(`OS Release: ${process.release}`);
-  core.info(`OS Type: ${process.type}`);
+  core.info(`OS Release: ${process.release.name}`);
   core.info(`IS_WINDOWS: ${IS_WINDOWS}`);
   core.info(`IS_MAC: ${IS_MAC}`);
   core.info(`IS_LINUX: ${IS_LINUX}`);

@@ -11,8 +11,7 @@ const exec = require('@actions/exec');
 async function run () {
   core.info(`Platform: ${process.platform}`);
   core.info(`Arch: ${process.arch}`);
-  core.info(`OS Release: ${process.release}`);
-  core.info(`OS Type: ${process.type}`);
+  core.info(`OS Release: ${process.release.name}`);
   core.info(`IS_WINDOWS: ${IS_WINDOWS}`);
   core.info(`IS_MAC: ${IS_MAC}`);
   core.info(`IS_LINUX: ${IS_LINUX}`);

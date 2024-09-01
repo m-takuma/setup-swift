@@ -9,7 +9,7 @@ const core = require('@actions/core');
 const tool_cache = require('@actions/tool-cache');
 const exec = require('@actions/exec');
 
- async function get_swift_pkg_url(swift_version) {
+async function get_swift_pkg_url(swift_version) {
     if (IS_MAC) {
         return `https://download.swift.org/swift-${swift_version}-release/xcode/swift-${swift_version}-RELEASE/swift-${swift_version}-RELEASE-osx.pkg`;
     }
@@ -52,3 +52,8 @@ async function get_swift_pkg_linux_url(swift_version) {
     core.debug(`pkg_name: ${pkg_name}`);
     return `https://download.swift.org/swift-${swift_version}-release/${platform_name}/swift-${swift_version}-RELEASE/${pkg_name}`;
 }
+
+module.exports = {
+    get_swift_pkg_url,
+    get_swift_pkg_linux_url
+};
