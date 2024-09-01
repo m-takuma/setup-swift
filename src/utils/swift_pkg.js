@@ -19,7 +19,8 @@ const exec = require('@actions/exec');
 }
 
 async function get_swift_pkg_linux_url(swift_version) {
-    const { stdout } = String(await exec.getExecOutput('cat', ['/etc/os-release']));
+    core.info('Getting Swift package URL for Linux');
+    const { stdout } = await exec.getExecOutput('cat', ['/etc/os-release']);
     core.debug(`stdout: ${stdout}`);
     const os_release = stdout;
     const os_id = os_release.match(/ID="(.*)"/)[1];
