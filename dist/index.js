@@ -30737,6 +30737,8 @@ async function setup_swift_on_mac(swift_version) {
     core.addPath(`${pkg_extracted_path}/usr/bin`);
     return swift_path;
 }
+// EXTERNAL MODULE: ./node_modules/@actions/exec/lib/exec.js
+var exec = __nccwpck_require__(8018);
 ;// CONCATENATED MODULE: ./src/utils/os.js
 const IS_WINDOWS = process.platform === "win32";
 const IS_MAC = process.platform === "darwin";
@@ -30744,6 +30746,7 @@ const IS_LINUX = process.platform === "linux";
 const IS_AARCH64 = process.arch === "arm64";
 const IS_X64 = process.arch === "x64";
 ;// CONCATENATED MODULE: ./src/utils/swift_pkg.js
+
 
 
 
