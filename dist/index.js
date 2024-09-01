@@ -28812,7 +28812,6 @@ async function download_swift_on_linux(swift_version) {
 async function install_swift_on_linux(pkg_path) {
     const pkg_extracted_path = tool_cache.extractTar(pkg_path);
     core.addPath(`${pkg_extracted_path}/usr/bin`);
-    return swift_path;
 }
 
 module.exports = {
@@ -28826,6 +28825,7 @@ module.exports = {
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 const tool_cache = __nccwpck_require__(1624);
+const core = __nccwpck_require__(272);
 
 async function download_swift_on_mac(swift_version) {
     const url = `https://download.swift.org/swift-${swift_version}-release/xcode/swift-${swift_version}-RELEASE/swift-${swift_version}-RELEASE-osx.pkg`
@@ -28834,17 +28834,13 @@ async function download_swift_on_mac(swift_version) {
 }
 
 async function install_swift_on_mac(pkg_path) {
-    const pkg_extracted_path = await tool_cache.extractTar(pkg_path);
-    const pkg_extracted_path_bin = `${pkg_extracted_path}/usr/bin`;
-    const swift_path = await tool_cache.cacheDir(pkg_extracted_path_bin, 'swift', '5.3.3');
-    return swift_path;
+    const pkg_extracted_path = tool_cache.extractTar(pkg_path);
+    core.addPath(`${pkg_extracted_path}/usr/bin`);
 }
 
 async function setup_swift_on_mac(swift_version) {
     const pkg_path = await download_swift_on_mac(swift_version);
-    const swift_path = await install_swift_on_mac(pkg_path);
-    core.addPath(`${pkg_extracted_path}/usr/bin`);
-    return swift_path;
+    await install_swift_on_mac(pkg_path);
 }
 
 module.exports = {
