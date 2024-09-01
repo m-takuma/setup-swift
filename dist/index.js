@@ -28821,7 +28821,9 @@ async function install_swift_on_linux(pkg_path, package_name, swift_version) {
         core.info(`Extracted Swift to ${pkg_extracted_path}`);
         core.info(`Cached Swift to ${toolPath}`);
     }
-    core.addPath(`${toolPath}/${package_name}/usr/bin`);
+    const binPath = `${toolPath}/${package_name}/usr/bin`;
+    core.info(`Adding ${binPath} to PATH`);
+    core.addPath(binPath);
     core.info('Swift installed');
 }
 
