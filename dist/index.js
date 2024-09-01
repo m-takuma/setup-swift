@@ -28904,7 +28904,8 @@ async function get_swift_pkg_linux_url(swift_version) {
     const os_release = stdout.split('\n').reduce((acc, line) => {
         const [key, value] = line.split('=');
         if (typeof value === 'string') {
-            acc[key] = value.replace("\"", '');
+            // "を削除
+            acc[key] = value.replace(/"/g, '');
         } else {
             acc[key] = value;
         }
