@@ -30901,6 +30901,11 @@ async function run () {
   core.info('Swift installed main');
   // await exec.exec('swift', ['--version']);
   const {exitCode, stdout, stderr } = await exec.getExecOutput('swift', ['--version']);
+  // which swift
+  const {exitCode: whichExitCode, stdout: whichStdout, stderr: whichStderr } = await exec.getExecOutput('which', ['swift']);
+  core.info(`which exitCode: ${whichExitCode}`);
+  core.info(`which stdout: ${whichStdout}`);
+  core.info(`which stderr: ${whichStderr}`);
   core.info(`stdout: ${stdout}`);
   core.info(`stderr: ${stderr}`);
   core.info(`exitCode: ${exitCode}`);
