@@ -28905,7 +28905,6 @@ async function get_swift_pkg_linux_url(swift_version) {
         const [key, value] = line.split('=');
         if (typeof value === 'string') {
             acc[key] = value.replace("\"", '');
-
         } else {
             acc[key] = value;
         }
@@ -28920,7 +28919,7 @@ async function get_swift_pkg_linux_url(swift_version) {
     let platform_name = '';
     let pkg_name = '';
     if (os_id === 'ubuntu') {
-        if (os_version_id in ['20.04', '22.04', '23.04', '24.04'] || os_version_id === '18.04' && IS_X64) {
+        if (['20.04', '22.04', '23.04', '24.04'].includes(os_version_id) || os_version_id === '18.04' && IS_X64) {
             platform_name = 'ubuntu' + os_version_id.replace('.', '') + arch;
             pkg_name = `swift-${swift_version}-RELEASE-${os_id}${os_version_id}.tar.gz`;
         } else {
