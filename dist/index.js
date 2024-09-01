@@ -28983,10 +28983,10 @@ async function refresh_keys() {
 }
 
 async function verifySwift(pkgPath, signaturePath) {
-    // EXAMPLE
-    // gpg --verify swift-<VERSION>-<PLATFORM>.tar.gz.sig
-    //   ...
-    //   gpg: Good signature from "Swift Automatic Signing Key #4 <swift-infrastructure@forums.swift.org>"
+    // Good signature example:
+    // gpg: Good signature from "Swift Automatic Signing Key #4 <swift-infrastructure@forums.swift.org>"
+    // THIS WARNING IS HARMLESS:
+    // WARNING: This key is not certified with a trusted signature
     await import_pgp_keys();
     await refresh_keys();
     await exec.exec('gpg', ['--verify', signaturePath, pkgPath]);
