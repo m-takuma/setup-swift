@@ -28804,9 +28804,14 @@ async function setup_swift_on_linux(swift_version) {
     const { url, pkg_name } = await get_swift_pkg(swift_version);
     let toolPath = tool_cache.find(pkg_name, swift_version);
     if (!toolPath) {
+        core.setOutput('cache-hit', 'false');
+        core.debug('Swift not found in cache');
         const { pkg_path, signature_path } = await download_swift_on_linux(url);
         await verifySwift(pkg_path, signature_path);
         toolPath = await install_swift_on_linux(pkg_path, pkg_name, swift_version);
+    } else {
+        core.setOutput('cache-hit', 'true');
+        core.debug('Swift found in cache');
     }
     const binPath = `${toolPath}/${pkg_name}/usr/bin`;
     core.debug(`Adding ${binPath} to PATH`);
@@ -30915,14 +30920,15 @@ const core = __nccwpck_require__(272);
 const exec = __nccwpck_require__(8018);
 
 async function run () {
+  const swift_version = core.getInput('swift-version');
   if (IS_MAC) {
     core.info('Setting up Swift on macOS');
     core.debug('Setting up Swift on macOS');
-    await setup_swift_on_mac('5.10.1');
+    await setup_swift_on_mac(swift_version);
   } else if (IS_LINUX) {
     core.info('Setting up Swift on Linux');
     core.debug('Setting up Swift on Linux');
-    await setup_swift_on_linux('5.10.1');
+    await setup_swift_on_linux(swift_version);
   } else if (IS_WINDOWS) {
     core.debug('Setting up Swift on Windows');
     core.setFailed('Windows is not supported');
@@ -30932,7 +30938,9 @@ async function run () {
   }
   const { stdout: swift_version_out } = await exec.getExecOutput('swift', ['--version']);
   const { stdout: which_swift_out } = await exec.getExecOutput('which', ['swift']);
+  core.setOutput('swift-version', swift_version_out);
   core.info(`swift --version: ${swift_version_out}`);
+  core.setOutput('swift-path', which_swift_out);
   core.info(`which swift: ${which_swift_out}`);
 }
 

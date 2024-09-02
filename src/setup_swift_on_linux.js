@@ -8,9 +8,14 @@ async function setup_swift_on_linux(swift_version) {
     const { url, pkg_name } = await get_swift_pkg(swift_version);
     let toolPath = tool_cache.find(pkg_name, swift_version);
     if (!toolPath) {
+        core.setOutput('cache-hit', 'false');
+        core.debug('Swift not found in cache');
         const { pkg_path, signature_path } = await download_swift_on_linux(url);
         await verifySwift(pkg_path, signature_path);
         toolPath = await install_swift_on_linux(pkg_path, pkg_name, swift_version);
+    } else {
+        core.setOutput('cache-hit', 'true');
+        core.debug('Swift found in cache');
     }
     const binPath = `${toolPath}/${pkg_name}/usr/bin`;
     core.debug(`Adding ${binPath} to PATH`);
