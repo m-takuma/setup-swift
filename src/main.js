@@ -9,14 +9,15 @@ const core = require('@actions/core');
 const exec = require('@actions/exec');
 
 async function run () {
+  const swift_version = core.getInput('swift-version');
   if (IS_MAC) {
     core.info('Setting up Swift on macOS');
     core.debug('Setting up Swift on macOS');
-    await setup_swift_on_mac('5.10.1');
+    await setup_swift_on_mac(swift_version);
   } else if (IS_LINUX) {
     core.info('Setting up Swift on Linux');
     core.debug('Setting up Swift on Linux');
-    await setup_swift_on_linux('5.10.1');
+    await setup_swift_on_linux(swift_version);
   } else if (IS_WINDOWS) {
     core.debug('Setting up Swift on Windows');
     core.setFailed('Windows is not supported');
@@ -26,7 +27,9 @@ async function run () {
   }
   const { stdout: swift_version_out } = await exec.getExecOutput('swift', ['--version']);
   const { stdout: which_swift_out } = await exec.getExecOutput('which', ['swift']);
+  core.setOutput('swift-version', swift_version_out);
   core.info(`swift --version: ${swift_version_out}`);
+  core.setOutput('swift-path', which_swift_out);
   core.info(`which swift: ${which_swift_out}`);
 }
 
