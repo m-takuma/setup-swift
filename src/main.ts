@@ -24,6 +24,7 @@ export async function run() {
     const { stdout: swiftVersionOut } = await exec.getExecOutput("swift", [
       "--version",
     ]);
+    exec.exec("echo", ["$PATH"]);
     core.debug(`swift-version: ${swiftVersionOut}`);
   } catch (error: any) {
     core.setFailed(error.message);
