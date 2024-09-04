@@ -1,3 +1,4 @@
+require('./sourcemap-register.js');import { createRequire as __WEBPACK_EXTERNAL_createRequire } from "module";
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
@@ -28791,10 +28792,309 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 2995:
-/***/ ((module) => {
+/***/ 3239:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
-module.exports = eval("require")("src/utils/platform.js");
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.run = run;
+const core = __importStar(__nccwpck_require__(7329));
+const runner = __importStar(__nccwpck_require__(4146));
+const exec = __importStar(__nccwpck_require__(9101));
+const linux_setup_1 = __nccwpck_require__(4913);
+const mac_setup_1 = __nccwpck_require__(8609);
+async function run() {
+    try {
+        const swiftVersion = core.getInput("swift-version");
+        core.debug(`swiftVersion: ${swiftVersion}`);
+        if (runner.IS_MAC) {
+            await (0, mac_setup_1.mac_setup)(swiftVersion);
+        }
+        else if (runner.IS_LINUX) {
+            await (0, linux_setup_1.linux_setup)(swiftVersion);
+        }
+        else if (runner.IS_WINDOWS) {
+            core.setFailed(`not found OS {platform: ${runner.PLATFORM}, arch: ${runner.ARCH}}`);
+        }
+        else {
+            core.setFailed(`not found OS {platform: ${runner.PLATFORM}, arch: ${runner.ARCH}}`);
+        }
+        const { stdout: swiftVersionOut } = await exec.getExecOutput("swift", [
+            "--version",
+        ]);
+        core.debug(`swift-version: ${swiftVersionOut}`);
+    }
+    catch (error) {
+        core.setFailed(error.message);
+    }
+}
+
+
+/***/ }),
+
+/***/ 4913:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.linux_setup = linux_setup;
+const core = __importStar(__nccwpck_require__(7329));
+const exec = __importStar(__nccwpck_require__(9101));
+const toolCache = __importStar(__nccwpck_require__(9181));
+const runner = __importStar(__nccwpck_require__(4146));
+async function linux_setup(swiftVersion) {
+    const { platformName, pkgName } = await getPakage(swiftVersion);
+    let toolPath = toolCache.find(pkgName, swiftVersion);
+    if (!toolPath) {
+        const url = await getDownloadURL(swiftVersion, platformName, pkgName);
+        const { downloadPath, signaturePath } = await downloadSwift(url);
+        await verifySwift(downloadPath, signaturePath);
+        const extractPath = await unpack(downloadPath, pkgName);
+        toolPath = await toolCache.cacheDir(extractPath, pkgName, swiftVersion);
+    }
+    const binPath = `${toolPath}/usr/bin`;
+    core.addPath(binPath);
+    core.info(`Swift Installed`);
+}
+async function getPakage(swiftVersion) {
+    const osRelease = await runner.getLinuxOsRelease();
+    const os = osRelease["ID"];
+    const osVersion = osRelease["VERSION_ID"];
+    const arch_suffix = runner.IS_AARCH64 ? "-aarch64" : "";
+    if (os === "amzn" && osVersion === "2") {
+        const platformName = `amazonlinux${osVersion.replace(".", "")}${arch_suffix}`;
+        const pkgName = `swift-${swiftVersion}-RELEASE-amazonlinux${osVersion}${arch_suffix}`;
+        return { platformName: platformName, pkgName: pkgName };
+    }
+    else if (os === "ubuntu" ||
+        os === "fedora" ||
+        os === "debian" ||
+        os === "centos") {
+        const platformName = `${os}${osVersion.replace(".", "")}${arch_suffix}`;
+        const pkgName = `swift-${swiftVersion}-RELEASE-${os}${osVersion}${arch_suffix}`;
+        return { platformName: platformName, pkgName: pkgName };
+    }
+    else {
+        throw new Error(`Unsupported OS: ${os} ${osVersion}`);
+    }
+}
+async function getDownloadURL(swiftVersion, platformName, pkgName) {
+    const url = `https://download.swift.org/swift-${swiftVersion}-release/${platformName}/swift-${swiftVersion}-RELEASE/${pkgName}.tar.gz`;
+    return url;
+}
+async function downloadSwift(url) {
+    const downloadPath = await toolCache.downloadTool(url);
+    const signaturePath = await toolCache.downloadTool(`${downloadPath}.sig`);
+    return { downloadPath: downloadPath, signaturePath: signaturePath };
+}
+async function import_pgp_keys() {
+    const keys_path = await toolCache.downloadTool("https://swift.org/keys/all-keys.asc");
+    await exec.exec("gpg", ["--import", keys_path]);
+}
+async function refresh_keys() {
+    // gpg --keyserver hkp://keyserver.ubuntu.com --refresh-keys Swift
+    await exec.exec("gpg", [
+        "--keyserver",
+        "hkp://keyserver.ubuntu.com",
+        "--refresh-keys",
+        "Swift",
+    ]);
+}
+async function verifySwift(pkgPath, signaturePath) {
+    // Good signature example:
+    // gpg: Good signature from "Swift Automatic Signing Key #4 <swift-infrastructure@forums.swift.org>"
+    // THIS WARNING IS HARMLESS:
+    // WARNING: This key is not certified with a trusted signature
+    await import_pgp_keys();
+    await refresh_keys();
+    await exec.exec("gpg", ["--verify", signaturePath, pkgPath]);
+}
+async function unpack(pkgPath, pkgName) {
+    const extractPath = await toolCache.extractTar(pkgPath);
+    return extractPath;
+}
+
+
+/***/ }),
+
+/***/ 8609:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.mac_setup = mac_setup;
+const core = __importStar(__nccwpck_require__(7329));
+const toolCache = __importStar(__nccwpck_require__(9181));
+const path_1 = __importDefault(__nccwpck_require__(1017));
+async function mac_setup(swiftVersion) {
+    const { platformName, pkgName } = await getPakage(swiftVersion);
+    let toolPath = toolCache.find(pkgName, swiftVersion);
+    if (!toolPath) {
+        const url = await getDownloadURL(swiftVersion, platformName, pkgName);
+        const { downloadPath } = await downloadSwift(url);
+        const extractPath = await unpack(downloadPath, pkgName);
+        toolPath = await toolCache.cacheDir(extractPath, pkgName, swiftVersion);
+    }
+    const binPath = `${toolPath}/usr/bin`;
+    core.addPath(binPath);
+    core.info(`Swift Installed`);
+}
+async function getPakage(swiftVersion) {
+    const platformName = "xcode";
+    const pkgName = `swift-${swiftVersion}-RELEASE-osx`;
+    return { platformName: platformName, pkgName: pkgName };
+}
+async function getDownloadURL(swiftVersion, platformName, pkgName) {
+    const url = `https://download.swift.org/swift-${swiftVersion}-release/${platformName}/swift-${swiftVersion}-RELEASE/${pkgName}.pkg`;
+    return url;
+}
+async function downloadSwift(url) {
+    const downloadPath = await toolCache.downloadTool(url);
+    return { downloadPath: downloadPath };
+}
+async function unpack(downloadPath, pkgName) {
+    const unpackedPath = await toolCache.extractXar(downloadPath);
+    const extractPath = await toolCache.extractTar(path_1.default.join(unpackedPath, `${pkgName}-package.pkg`, "Payload"));
+    return extractPath;
+}
+
+
+/***/ }),
+
+/***/ 4146:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.IS_X64 = exports.IS_AARCH64 = exports.IS_LINUX = exports.IS_MAC = exports.IS_WINDOWS = exports.ARCH = exports.PLATFORM = void 0;
+exports.getLinuxOsRelease = getLinuxOsRelease;
+const core = __importStar(__nccwpck_require__(7329));
+const exec = __importStar(__nccwpck_require__(9101));
+exports.PLATFORM = process.platform;
+exports.ARCH = process.arch;
+exports.IS_WINDOWS = process.platform === "win32";
+exports.IS_MAC = process.platform === "darwin";
+exports.IS_LINUX = process.platform === "linux";
+exports.IS_AARCH64 = process.arch === "arm64";
+exports.IS_X64 = process.arch === "x64";
+async function getLinuxOsRelease() {
+    if (!exports.IS_LINUX) {
+        core.setFailed("This Faild is Logic Failures. Please Send Issue This Repository's Owner.");
+    }
+    const { stdout: osReleaseOut } = await exec.getExecOutput("cat", [
+        "/etc/os-release",
+    ]);
+    const osRelease = osReleaseOut.split("\n").reduce((acc, line) => {
+        const [key, value] = line.split("=");
+        if (typeof value === "string") {
+            acc[key] = value.replace(/"/g, "");
+        }
+        else {
+            acc[key] = value;
+        }
+        return acc;
+    }, {});
+    return osRelease;
+}
 
 
 /***/ }),
@@ -28803,7 +29103,7 @@ module.exports = eval("require")("src/utils/platform.js");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("assert");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("assert");
 
 /***/ }),
 
@@ -28811,7 +29111,7 @@ module.exports = require("assert");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("async_hooks");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("async_hooks");
 
 /***/ }),
 
@@ -28819,7 +29119,7 @@ module.exports = require("async_hooks");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("buffer");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("buffer");
 
 /***/ }),
 
@@ -28827,7 +29127,7 @@ module.exports = require("buffer");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("child_process");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("child_process");
 
 /***/ }),
 
@@ -28835,7 +29135,7 @@ module.exports = require("child_process");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("console");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("console");
 
 /***/ }),
 
@@ -28843,7 +29143,7 @@ module.exports = require("console");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("crypto");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("crypto");
 
 /***/ }),
 
@@ -28851,7 +29151,7 @@ module.exports = require("crypto");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("diagnostics_channel");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("diagnostics_channel");
 
 /***/ }),
 
@@ -28859,7 +29159,7 @@ module.exports = require("diagnostics_channel");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("events");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("events");
 
 /***/ }),
 
@@ -28867,7 +29167,7 @@ module.exports = require("events");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("fs");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("fs");
 
 /***/ }),
 
@@ -28875,7 +29175,7 @@ module.exports = require("fs");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("http");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("http");
 
 /***/ }),
 
@@ -28883,7 +29183,7 @@ module.exports = require("http");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("http2");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("http2");
 
 /***/ }),
 
@@ -28891,7 +29191,7 @@ module.exports = require("http2");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("https");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("https");
 
 /***/ }),
 
@@ -28899,7 +29199,7 @@ module.exports = require("https");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("net");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("net");
 
 /***/ }),
 
@@ -28907,7 +29207,7 @@ module.exports = require("net");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("node:events");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:events");
 
 /***/ }),
 
@@ -28915,7 +29215,7 @@ module.exports = require("node:events");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("node:stream");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:stream");
 
 /***/ }),
 
@@ -28923,7 +29223,7 @@ module.exports = require("node:stream");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("node:util");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:util");
 
 /***/ }),
 
@@ -28931,7 +29231,7 @@ module.exports = require("node:util");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("os");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("os");
 
 /***/ }),
 
@@ -28939,7 +29239,7 @@ module.exports = require("os");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("path");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("path");
 
 /***/ }),
 
@@ -28947,7 +29247,7 @@ module.exports = require("path");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("perf_hooks");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("perf_hooks");
 
 /***/ }),
 
@@ -28955,7 +29255,7 @@ module.exports = require("perf_hooks");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("querystring");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("querystring");
 
 /***/ }),
 
@@ -28963,7 +29263,7 @@ module.exports = require("querystring");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("stream");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("stream");
 
 /***/ }),
 
@@ -28971,7 +29271,7 @@ module.exports = require("stream");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("stream/web");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("stream/web");
 
 /***/ }),
 
@@ -28979,7 +29279,7 @@ module.exports = require("stream/web");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("string_decoder");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("string_decoder");
 
 /***/ }),
 
@@ -28987,7 +29287,7 @@ module.exports = require("string_decoder");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("timers");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("timers");
 
 /***/ }),
 
@@ -28995,7 +29295,7 @@ module.exports = require("timers");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("tls");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("tls");
 
 /***/ }),
 
@@ -29003,7 +29303,7 @@ module.exports = require("tls");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("url");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("url");
 
 /***/ }),
 
@@ -29011,7 +29311,7 @@ module.exports = require("url");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("util");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("util");
 
 /***/ }),
 
@@ -29019,7 +29319,7 @@ module.exports = require("util");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("util/types");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("util/types");
 
 /***/ }),
 
@@ -29027,7 +29327,7 @@ module.exports = require("util/types");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("worker_threads");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("worker_threads");
 
 /***/ }),
 
@@ -29035,7 +29335,7 @@ module.exports = require("worker_threads");
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("zlib");
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("zlib");
 
 /***/ }),
 
@@ -30697,46 +30997,6 @@ module.exports = parseParams
 /******/ 	}
 /******/ 	
 /************************************************************************/
-/******/ 	/* webpack/runtime/compat get default export */
-/******/ 	(() => {
-/******/ 		// getDefaultExport function for compatibility with non-harmony modules
-/******/ 		__nccwpck_require__.n = (module) => {
-/******/ 			var getter = module && module.__esModule ?
-/******/ 				() => (module['default']) :
-/******/ 				() => (module);
-/******/ 			__nccwpck_require__.d(getter, { a: getter });
-/******/ 			return getter;
-/******/ 		};
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/define property getters */
-/******/ 	(() => {
-/******/ 		// define getter functions for harmony exports
-/******/ 		__nccwpck_require__.d = (exports, definition) => {
-/******/ 			for(var key in definition) {
-/******/ 				if(__nccwpck_require__.o(definition, key) && !__nccwpck_require__.o(exports, key)) {
-/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
-/******/ 				}
-/******/ 			}
-/******/ 		};
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
-/******/ 	(() => {
-/******/ 		__nccwpck_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/make namespace object */
-/******/ 	(() => {
-/******/ 		// define __esModule on exports
-/******/ 		__nccwpck_require__.r = (exports) => {
-/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-/******/ 			}
-/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
-/******/ 		};
-/******/ 	})();
-/******/ 	
 /******/ 	/* webpack/runtime/compat */
 /******/ 	
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
@@ -30746,189 +31006,15 @@ var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be in strict mode.
 (() => {
 "use strict";
-// ESM COMPAT FLAG
-__nccwpck_require__.r(__webpack_exports__);
+var exports = __webpack_exports__;
 
-// EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
-var core = __nccwpck_require__(7329);
-// EXTERNAL MODULE: ../../.nvm/versions/node/v20.16.0/lib/node_modules/@vercel/ncc/dist/ncc/@@notfound.js?src/utils/platform.js
-var platform = __nccwpck_require__(2995);
-// EXTERNAL MODULE: ./node_modules/@actions/exec/lib/exec.js
-var exec = __nccwpck_require__(9101);
-// EXTERNAL MODULE: ./node_modules/@actions/tool-cache/lib/tool-cache.js
-var tool_cache = __nccwpck_require__(9181);
-;// CONCATENATED MODULE: ./lib/utils/platform.js
-
-
-const PLATFORM = process.platform;
-const ARCH = process.arch;
-const IS_WINDOWS = process.platform === "win32";
-const IS_MAC = process.platform === "darwin";
-const IS_LINUX = process.platform === "linux";
-const IS_AARCH64 = process.arch === "arm64";
-const IS_X64 = process.arch === "x64";
-async function getLinuxOsRelease() {
-    if (!IS_LINUX) {
-        core.setFailed('This Faild is Logic Failures. Please Send Issue This Repository\'s Owner.');
-    }
-    const { stdout: osReleaseOut } = await exec.getExecOutput('cat', ['/etc/os-release']);
-    const osRelease = osReleaseOut.split('\n').reduce((acc, line) => {
-        const [key, value] = line.split('=');
-        if (typeof value === 'string') {
-            acc[key] = value.replace(/"/g, '');
-        }
-        else {
-            acc[key] = value;
-        }
-        return acc;
-    }, {});
-    return osRelease;
-}
-
-;// CONCATENATED MODULE: ./lib/setup/linux_setup.js
-
-
-
-
-async function linux_setup(swiftVersion) {
-    const { platformName, pkgName } = await getPakage(swiftVersion);
-    let toolPath = tool_cache.find(pkgName, swiftVersion);
-    if (!toolPath) {
-        const url = await getDownloadURL(swiftVersion, platformName, pkgName);
-        const { downloadPath, signaturePath } = await downloadSwift(url);
-        await verifySwift(downloadPath, signaturePath);
-        const extractPath = await unpack(downloadPath, pkgName);
-        toolPath = await tool_cache.cacheDir(extractPath, pkgName, swiftVersion);
-    }
-    const binPath = `${toolPath}/usr/bin`;
-    core.addPath(binPath);
-    core.info(`Swift Installed`);
-}
-async function getPakage(swiftVersion) {
-    const osRelease = await getLinuxOsRelease();
-    const os = osRelease['ID'];
-    const osVersion = osRelease['VERSION_ID'];
-    const arch_suffix = IS_AARCH64 ? '-aarch64' : '';
-    if (os === 'amzn' && osVersion === '2') {
-        const platformName = `amazonlinux${osVersion.replace('.', '')}${arch_suffix}`;
-        const pkgName = `swift-${swiftVersion}-RELEASE-amazonlinux${osVersion}${arch_suffix}`;
-        return { platformName: platformName, pkgName: pkgName };
-    }
-    else if (os === 'ubuntu' || os === 'fedora' || os === 'debian' || os === 'centos') {
-        const platformName = `${os}${osVersion.replace('.', '')}${arch_suffix}`;
-        const pkgName = `swift-${swiftVersion}-RELEASE-${os}${osVersion}${arch_suffix}`;
-        return { platformName: platformName, pkgName: pkgName };
-    }
-    else {
-        throw new Error(`Unsupported OS: ${os} ${osVersion}`);
-    }
-}
-async function getDownloadURL(swiftVersion, platformName, pkgName) {
-    const url = `https://download.swift.org/swift-${swiftVersion}-release/${platformName}/swift-${swiftVersion}-RELEASE/${pkgName}.tar.gz`;
-    return url;
-}
-async function downloadSwift(url) {
-    const downloadPath = await tool_cache.downloadTool(url);
-    const signaturePath = await tool_cache.downloadTool(`${downloadPath}.sig`);
-    return { downloadPath: downloadPath, signaturePath: signaturePath };
-}
-async function import_pgp_keys() {
-    const keys_path = await tool_cache.downloadTool('https://swift.org/keys/all-keys.asc');
-    await exec.exec('gpg', ['--import', keys_path]);
-}
-async function refresh_keys() {
-    // gpg --keyserver hkp://keyserver.ubuntu.com --refresh-keys Swift
-    await exec.exec('gpg', ['--keyserver', 'hkp://keyserver.ubuntu.com', '--refresh-keys', 'Swift']);
-}
-async function verifySwift(pkgPath, signaturePath) {
-    // Good signature example:
-    // gpg: Good signature from "Swift Automatic Signing Key #4 <swift-infrastructure@forums.swift.org>"
-    // THIS WARNING IS HARMLESS:
-    // WARNING: This key is not certified with a trusted signature
-    await import_pgp_keys();
-    await refresh_keys();
-    await exec.exec('gpg', ['--verify', signaturePath, pkgPath]);
-}
-async function unpack(pkgPath, pkgName) {
-    const extractPath = await tool_cache.extractTar(pkgPath);
-    return extractPath;
-}
-
-// EXTERNAL MODULE: external "path"
-var external_path_ = __nccwpck_require__(1017);
-var external_path_default = /*#__PURE__*/__nccwpck_require__.n(external_path_);
-;// CONCATENATED MODULE: ./lib/setup/mac_setup.js
-
-
-
-async function mac_setup(swiftVersion) {
-    const { platformName, pkgName } = await mac_setup_getPakage(swiftVersion);
-    let toolPath = tool_cache.find(pkgName, swiftVersion);
-    if (!toolPath) {
-        const url = await mac_setup_getDownloadURL(swiftVersion, platformName, pkgName);
-        const { downloadPath } = await mac_setup_downloadSwift(url);
-        const extractPath = await mac_setup_unpack(downloadPath, pkgName);
-        toolPath = await tool_cache.cacheDir(extractPath, pkgName, swiftVersion);
-    }
-    const binPath = `${toolPath}/usr/bin`;
-    core.addPath(binPath);
-    core.info(`Swift Installed`);
-}
-async function mac_setup_getPakage(swiftVersion) {
-    const platformName = 'xcode';
-    const pkgName = `swift-${swiftVersion}-RELEASE-osx`;
-    return { platformName: platformName, pkgName: pkgName };
-}
-async function mac_setup_getDownloadURL(swiftVersion, platformName, pkgName) {
-    const url = `https://download.swift.org/swift-${swiftVersion}-release/${platformName}/swift-${swiftVersion}-RELEASE/${pkgName}.pkg`;
-    return url;
-}
-async function mac_setup_downloadSwift(url) {
-    const downloadPath = await tool_cache.downloadTool(url);
-    return { downloadPath: downloadPath };
-}
-async function mac_setup_unpack(downloadPath, pkgName) {
-    const unpackedPath = await tool_cache.extractXar(downloadPath);
-    const extractPath = await tool_cache.extractTar(external_path_default().join(unpackedPath, `${pkgName}-package.pkg`, 'Payload'));
-    return extractPath;
-}
-
-;// CONCATENATED MODULE: ./lib/main.js
-
-
-
-
-
-async function run() {
-    try {
-        const swiftVersion = core.getInput('swift-version');
-        core.debug(`swiftVersion: ${swiftVersion}`);
-        if (platform.IS_MAC) {
-            await mac_setup(swiftVersion);
-        }
-        else if (platform.IS_LINUX) {
-            await linux_setup(swiftVersion);
-        }
-        else if (platform.IS_WINDOWS) {
-            core.setFailed(`not found OS {platform: ${platform.PLATFORM}, arch: ${platform.ARCH}}`);
-        }
-        else {
-            core.setFailed(`not found OS {platform: ${platform.PLATFORM}, arch: ${platform.ARCH}}`);
-        }
-        const { stdout: swiftVersionOut } = await exec.getExecOutput('swift', ['--version']);
-        core.debug(`swift-version: ${swiftVersionOut}`);
-    }
-    catch (error) {
-        core.setFailed(error.message);
-    }
-}
-
-;// CONCATENATED MODULE: ./lib/index.js
-
-run();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const main_1 = __nccwpck_require__(3239);
+(0, main_1.run)();
 
 })();
 
 module.exports = __webpack_exports__;
 /******/ })()
 ;
+//# sourceMappingURL=index.js.map
