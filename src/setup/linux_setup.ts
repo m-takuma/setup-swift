@@ -22,10 +22,14 @@ export async function linux_setup(swiftVersion: string) {
     );
     await verifySwift(downloadPath, signaturePath);
     const extractPath = await unpack(downloadPath, pkgName);
-    toolPath = await toolCache.cacheDir(extractPath, "swift", swiftVersion);
+    toolPath = await toolCache.cacheDir(
+      path.join(extractPath, pkgName),
+      "swift",
+      swiftVersion,
+    );
   }
   core.info(`Swift Installed at ${toolPath}`);
-  const binPath = path.join(toolPath, pkgName, "/usr/bin");
+  const binPath = path.join(toolPath, "/usr/bin");
   core.info(`Adding ${binPath} to PATH`);
   core.addPath(binPath);
   core.info(`Swift Installed`);
