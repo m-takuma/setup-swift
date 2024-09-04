@@ -5,13 +5,6 @@ inputs:
     description: 'The version of Swift to set up'
     required: true
     default: '5.10.1'
-outputs:
-  swift-version:  # id of output
-    description: 'The version of Swift that was set up'
-  cache-hit:
-    description: 'Whether the Swift version was found in the cache'
-  swift-path:
-    description: 'The path to the Swift executable'
 runs:
   using: 'node20'
   main: 'dist/index.js'

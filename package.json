@@ -1,8 +1,30 @@
 {
+  "name": "setup-swift",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./lib/index.js",
   "dependencies": {
     "@actions/core": "^1.10.1",
     "@actions/exec": "^1.1.1",
     "@actions/github": "^6.0.0",
-    "@actions/tool-cache": "^2.0.1"
+    "@actions/tool-cache": "^2.0.1",
+    "typescript": "^5.5.4"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/m-takuma/setup-swift.git"
+  },
+  "author": "m-takuma",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/m-takuma/setup-swift/issues"
+  },
+  "homepage": "https://github.com/m-takuma/setup-swift#readme",
+  "description": "",
+  "devDependencies": {
+    "@types/node": "^22.5.3"
   }
 }
