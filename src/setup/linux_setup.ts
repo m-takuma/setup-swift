@@ -8,9 +8,16 @@ export async function linux_setup(swiftVersion: string) {
   core.info(`${platformName} ${pkgName}`);
   let toolPath = toolCache.find(pkgName, swiftVersion);
   if (!toolPath) {
-    const url = await getDownloadURL(swiftVersion, platformName, pkgName);
-    core.info(`Downloading Swift from ${url}`);
-    const { downloadPath, signaturePath } = await downloadSwift(url);
+    const { pkgURL, signatureURL } = await getDownloadURL(
+      swiftVersion,
+      platformName,
+      pkgName,
+    );
+    core.info(`Downloading Swift from ${pkgURL}`);
+    const { downloadPath, signaturePath } = await downloadSwift(
+      pkgURL,
+      signatureURL,
+    );
     await verifySwift(downloadPath, signaturePath);
     const extractPath = await unpack(downloadPath, pkgName);
     toolPath = await toolCache.cacheDir(extractPath, pkgName, swiftVersion);
@@ -48,13 +55,15 @@ async function getDownloadURL(
   platformName: string,
   pkgName: string,
 ) {
-  const url = `https://download.swift.org/swift-${swiftVersion}-release/${platformName}/swift-${swiftVersion}-RELEASE/${pkgName}.tar.gz`;
-  return url;
+  const base = `https://download.swift.org/swift-${swiftVersion}-release/${platformName}/swift-${swiftVersion}-RELEASE/${pkgName}`;
+  const pkgURL = `${base}.tar.gz`;
+  const signatureURL = `${pkgURL}.sig`;
+  return { pkgURL: pkgURL, signatureURL: signatureURL };
 }
 
-async function downloadSwift(url: string) {
-  const downloadPath = await toolCache.downloadTool(url);
-  const signaturePath = await toolCache.downloadTool(`${downloadPath}.sig`);
+async function downloadSwift(pkgURL: string, signatureURL: string) {
+  const downloadPath = await toolCache.downloadTool(pkgURL);
+  const signaturePath = await toolCache.downloadTool(signatureURL);
   return { downloadPath: downloadPath, signaturePath: signaturePath };
 }
 
