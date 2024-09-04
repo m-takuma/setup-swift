@@ -2,6 +2,7 @@ import * as core from "@actions/core";
 import * as exec from "@actions/exec";
 import * as toolCache from "@actions/tool-cache";
 import * as runner from "../utils/platform";
+import path from "path";
 
 export async function linux_setup(swiftVersion: string) {
   const { platformName, pkgName } = await getPakage(swiftVersion);
@@ -23,8 +24,8 @@ export async function linux_setup(swiftVersion: string) {
     toolPath = await toolCache.cacheDir(extractPath, pkgName, swiftVersion);
   }
   core.info(`Swift Installed at ${toolPath}`);
-  const binPath = `${toolPath}/usr/bin`;
-  exec.exec(binPath + "/swift", ["--version"]);
+  const binPath = path.join(toolPath, pkgName, "/usr/bin");
+  exec.exec(binPath)
   core.info(`Adding ${binPath} to PATH`);
   core.addPath(binPath);
   exec.exec("swift", ["--version"]);
