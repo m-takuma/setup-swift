@@ -28908,11 +28908,10 @@ async function linux_setup(swiftVersion) {
         const { downloadPath, signaturePath } = await downloadSwift(pkgURL, signatureURL);
         await verifySwift(downloadPath, signaturePath);
         const extractPath = await unpack(downloadPath, pkgName);
-        core.info(`Caching Swift at ${extractPath}`);
         toolPath = await toolCache.cacheDir(extractPath, "swift", swiftVersion);
     }
     core.info(`Swift Installed at ${toolPath}`);
-    const binPath = path_1.default.join(toolPath, "swift", "/usr/bin");
+    const binPath = path_1.default.join(toolPath, pkgName, "/usr/bin");
     core.info(`Adding ${binPath} to PATH`);
     core.addPath(binPath);
     core.info(`Swift Installed`);
