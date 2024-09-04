@@ -12,3 +12,5 @@ jobs:
       - name: test action
         uses: ./
         id: setup-swift
+        with:
+          swift-version: "5.10"
