@@ -28891,9 +28891,11 @@ const toolCache = __importStar(__nccwpck_require__(7784));
 const runner = __importStar(__nccwpck_require__(1005));
 async function linux_setup(swiftVersion) {
     const { platformName, pkgName } = await getPakage(swiftVersion);
+    core.info(`${platformName} ${pkgName}`);
     let toolPath = toolCache.find(pkgName, swiftVersion);
     if (!toolPath) {
         const url = await getDownloadURL(swiftVersion, platformName, pkgName);
+        core.info(`Downloading Swift from ${url}`);
         const { downloadPath, signaturePath } = await downloadSwift(url);
         await verifySwift(downloadPath, signaturePath);
         const extractPath = await unpack(downloadPath, pkgName);

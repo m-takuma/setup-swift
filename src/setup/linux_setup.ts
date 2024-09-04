@@ -5,9 +5,11 @@ import * as runner from "../utils/platform";
 
 export async function linux_setup(swiftVersion: string) {
   const { platformName, pkgName } = await getPakage(swiftVersion);
+  core.info(`${platformName} ${pkgName}`);
   let toolPath = toolCache.find(pkgName, swiftVersion);
   if (!toolPath) {
     const url = await getDownloadURL(swiftVersion, platformName, pkgName);
+    core.info(`Downloading Swift from ${url}`);
     const { downloadPath, signaturePath } = await downloadSwift(url);
     await verifySwift(downloadPath, signaturePath);
     const extractPath = await unpack(downloadPath, pkgName);
