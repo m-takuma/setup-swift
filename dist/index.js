@@ -28908,7 +28908,8 @@ async function linux_setup(swiftVersion) {
     }
     core.info(`Swift Installed at ${toolPath}`);
     const binPath = path_1.default.join(toolPath, pkgName, "/usr/bin");
-    exec.exec(binPath);
+    core.info(binPath);
+    exec.exec(`${binPath}/swift`, ["--version"]);
     core.info(`Adding ${binPath} to PATH`);
     core.addPath(binPath);
     exec.exec("swift", ["--version"]);
