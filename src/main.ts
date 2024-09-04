@@ -1,8 +1,8 @@
 import * as core from '@actions/core';
-import * as runner from 'src/utils/platform.js';
+import * as runner from 'src/utils/platform';
 import * as exec from '@actions/exec';
-import { linux_setup } from './setup/linux_setup.js';
-import { mac_setup } from './setup/mac_setup.js';
+import { linux_setup } from './setup/linux_setup';
+import { mac_setup } from './setup/mac_setup';
 
 export async function run() {
     try {

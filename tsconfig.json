@@ -5,8 +5,15 @@
     "module": "NodeNext",
     "rootDir": "./src",
     "moduleResolution": "NodeNext",
-    "baseUrl": ".",
-    "outDir": "./lib",
+    "baseUrl": "./",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "noImplicitAny": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "newLine": "lf"
   },
-  "exclude": ["./lib", "./node_modules", "./dist"]
+  "exclude": ["./dist", "./node_modules", "./__tests__", "./coverage"]
 }
