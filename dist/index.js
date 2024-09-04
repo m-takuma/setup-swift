@@ -28884,12 +28884,16 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.linux_setup = linux_setup;
 const core = __importStar(__nccwpck_require__(2186));
 const exec = __importStar(__nccwpck_require__(1514));
 const toolCache = __importStar(__nccwpck_require__(7784));
 const runner = __importStar(__nccwpck_require__(1005));
+const path_1 = __importDefault(__nccwpck_require__(1017));
 async function linux_setup(swiftVersion) {
     const { platformName, pkgName } = await getPakage(swiftVersion);
     core.info(`${platformName} ${pkgName}`);
@@ -28903,8 +28907,8 @@ async function linux_setup(swiftVersion) {
         toolPath = await toolCache.cacheDir(extractPath, pkgName, swiftVersion);
     }
     core.info(`Swift Installed at ${toolPath}`);
-    const binPath = `${toolPath}/usr/bin`;
-    exec.exec(binPath + "/swift", ["--version"]);
+    const binPath = path_1.default.join(toolPath, pkgName, "/usr/bin");
+    exec.exec(binPath);
     core.info(`Adding ${binPath} to PATH`);
     core.addPath(binPath);
     exec.exec("swift", ["--version"]);
