@@ -28900,7 +28900,7 @@ const path_1 = __importDefault(__nccwpck_require__(1017));
 async function linux_setup(swiftVersion) {
     const { platformName, pkgName } = await getPakage(swiftVersion);
     core.info(`${platformName} ${pkgName}`);
-    let toolPath = toolCache.find(pkgName, swiftVersion);
+    let toolPath = toolCache.find("swift", swiftVersion);
     core.info(`toolPath: ${toolPath}`);
     if (!toolPath) {
         const { pkgURL, signatureURL } = await getDownloadURL(swiftVersion, platformName, pkgName);
@@ -28908,10 +28908,11 @@ async function linux_setup(swiftVersion) {
         const { downloadPath, signaturePath } = await downloadSwift(pkgURL, signatureURL);
         await verifySwift(downloadPath, signaturePath);
         const extractPath = await unpack(downloadPath, pkgName);
-        toolPath = await toolCache.cacheDir(extractPath, pkgName, swiftVersion);
+        core.info(`Caching Swift at ${extractPath}`);
+        toolPath = await toolCache.cacheDir(extractPath, "swift", swiftVersion);
     }
     core.info(`Swift Installed at ${toolPath}`);
-    const binPath = path_1.default.join(toolPath, pkgName, "/usr/bin");
+    const binPath = path_1.default.join(toolPath, "swift", "/usr/bin");
     core.info(`Adding ${binPath} to PATH`);
     core.addPath(binPath);
     core.info(`Swift Installed`);

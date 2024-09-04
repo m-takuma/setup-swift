@@ -7,7 +7,7 @@ import path from "path";
 export async function linux_setup(swiftVersion: string) {
   const { platformName, pkgName } = await getPakage(swiftVersion);
   core.info(`${platformName} ${pkgName}`);
-  let toolPath = toolCache.find(pkgName, swiftVersion);
+  let toolPath = toolCache.find("swift", swiftVersion);
   core.info(`toolPath: ${toolPath}`);
   if (!toolPath) {
     const { pkgURL, signatureURL } = await getDownloadURL(
@@ -22,10 +22,11 @@ export async function linux_setup(swiftVersion: string) {
     );
     await verifySwift(downloadPath, signaturePath);
     const extractPath = await unpack(downloadPath, pkgName);
-    toolPath = await toolCache.cacheDir(extractPath, pkgName, swiftVersion);
+    core.info(`Caching Swift at ${extractPath}`);
+    toolPath = await toolCache.cacheDir(extractPath, "swift", swiftVersion);
   }
   core.info(`Swift Installed at ${toolPath}`);
-  const binPath = path.join(toolPath, pkgName, "/usr/bin");
+  const binPath = path.join(toolPath, "swift", "/usr/bin");
   core.info(`Adding ${binPath} to PATH`);
   core.addPath(binPath);
   core.info(`Swift Installed`);
