@@ -28845,8 +28845,11 @@ async function run() {
         const { stdout: swiftVersionOut } = await exec.getExecOutput("swift", [
             "--version",
         ]);
-        exec.exec("echo", ["$PATH"]);
+        const { stdout: swiftPathOut } = await exec.getExecOutput("which", [
+            "swift",
+        ]);
         core.debug(`swift-version: ${swiftVersionOut}`);
+        core.debug(`swift-path: ${swiftPathOut}`);
     }
     catch (error) {
         core.setFailed(error.message);
@@ -28908,12 +28911,8 @@ async function linux_setup(swiftVersion) {
     }
     core.info(`Swift Installed at ${toolPath}`);
     const binPath = path_1.default.join(toolPath, pkgName, "/usr/bin");
-    core.info(binPath);
-    exec.exec(`${binPath}/swift`, ["--version"]);
     core.info(`Adding ${binPath} to PATH`);
     core.addPath(binPath);
-    exec.exec("swift", ["--version"]);
-    exec.exec("echo $PATH");
     core.info(`Swift Installed`);
 }
 async function getPakage(swiftVersion) {
