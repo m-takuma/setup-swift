@@ -8,6 +8,7 @@ export async function linux_setup(swiftVersion: string) {
   const { platformName, pkgName } = await getPakage(swiftVersion);
   core.info(`${platformName} ${pkgName}`);
   let toolPath = toolCache.find(pkgName, swiftVersion);
+  core.info(`toolPath: ${toolPath}`);
   if (!toolPath) {
     const { pkgURL, signatureURL } = await getDownloadURL(
       swiftVersion,
