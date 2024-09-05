@@ -2,20 +2,21 @@ import * as core from "@actions/core";
 import * as exec from "@actions/exec";
 import * as toolCache from "@actions/tool-cache";
 import * as runner from "../utils/platform";
+import { getSemverSwiftVersion } from "../utils/version";
 import path from "path";
 
 export async function linux_setup(swiftVersion: string) {
   const { platformName, pkgName } = await getPakage(swiftVersion);
-  core.info(`${platformName} ${pkgName}`);
-  let toolPath = toolCache.find("swift", swiftVersion);
-  core.info(`toolPath: ${toolPath}`);
+  core.debug(`${platformName} ${pkgName}`);
+  let toolPath = toolCache.find("swift", getSemverSwiftVersion(swiftVersion));
+  core.debug(`toolPath: ${toolPath}`);
   if (!toolPath) {
     const { pkgURL, signatureURL } = await getDownloadURL(
       swiftVersion,
       platformName,
       pkgName,
     );
-    core.info(`Downloading Swift from ${pkgURL}`);
+    core.debug(`Downloading Swift from ${pkgURL}`);
     const { downloadPath, signaturePath } = await downloadSwift(
       pkgURL,
       signatureURL,
@@ -25,12 +26,12 @@ export async function linux_setup(swiftVersion: string) {
     toolPath = await toolCache.cacheDir(
       path.join(extractPath, pkgName),
       "swift",
-      swiftVersion,
+      getSemverSwiftVersion(swiftVersion),
     );
   }
-  core.info(`Swift Installed at ${toolPath}`);
+  core.debug(`Swift Installed at ${toolPath}`);
   const binPath = path.join(toolPath, "/usr/bin");
-  core.info(`Adding ${binPath} to PATH`);
+  core.debug(`Adding ${binPath} to PATH`);
   core.addPath(binPath);
   core.info(`Swift Installed`);
 }
@@ -104,5 +105,6 @@ async function verifySwift(pkgPath: string, signaturePath: string) {
 
 async function unpack(pkgPath: string, pkgName: string) {
   const extractPath = await toolCache.extractTar(pkgPath);
+  core.debug(`Extracted to ${extractPath}`);
   return extractPath;
 }

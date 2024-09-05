@@ -1,15 +1,21 @@
 import * as core from "@actions/core";
 import * as toolCache from "@actions/tool-cache";
 import path from "path";
+import { getSemverSwiftVersion } from "../utils/version";
 
 export async function mac_setup(swiftVersion: string) {
   const { platformName, pkgName } = await getPakage(swiftVersion);
-  let toolPath = toolCache.find(pkgName, swiftVersion);
+  core.debug(`${platformName} ${pkgName}`);
+  let toolPath = toolCache.find("swift", getSemverSwiftVersion(swiftVersion));
   if (!toolPath) {
     const url = await getDownloadURL(swiftVersion, platformName, pkgName);
     const { downloadPath } = await downloadSwift(url);
     const extractPath = await unpack(downloadPath, pkgName);
-    toolPath = await toolCache.cacheDir(extractPath, pkgName, swiftVersion);
+    toolPath = await toolCache.cacheDir(
+      extractPath,
+      "swift",
+      getSemverSwiftVersion(swiftVersion),
+    );
   }
   const binPath = `${toolPath}/usr/bin`;
   core.addPath(binPath);
@@ -41,5 +47,6 @@ async function unpack(downloadPath: string, pkgName: string) {
   const extractPath = await toolCache.extractTar(
     path.join(unpackedPath, `${pkgName}-package.pkg`, "Payload"),
   );
+  core.debug(`Extracted to ${extractPath}`);
   return extractPath;
 }
