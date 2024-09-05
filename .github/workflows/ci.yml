@@ -1,0 +1,23 @@
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  test-actions:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        swift-version: ["5.10", "5.10.1"]
+    runs-on: ${{ matrix.os }}
+    name: Github Actions Test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Swift
+        uses: ./
+        with:
+          swift-version: ${{ matrix.swift-version }}
