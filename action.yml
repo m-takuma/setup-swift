@@ -1,4 +1,4 @@
-name: "setup-swift"
+name: "Setup Swift Language"
 description: "Set up a specific version of Swift"
 inputs:
   swift-version:
