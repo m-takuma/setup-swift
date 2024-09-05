@@ -31340,49 +31340,70 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 836:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+/***/ 399:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
-const { get_swift_pkg } = __nccwpck_require__(5436);
-const core = __nccwpck_require__(272);
-const tool_cache = __nccwpck_require__(1624);
-const exec = __nccwpck_require__(8018);
-const { verifySwift } = __nccwpck_require__(1245);
+"use strict";
 
-async function setup_swift_on_linux(swift_version) {
-    const { url, pkg_name } = await get_swift_pkg(swift_version);
-    let toolPath = tool_cache.find(pkg_name, swift_version);
-    if (!toolPath) {
-        const { pkg_path, signature_path } = await download_swift_on_linux(url);
-        await verifySwift(pkg_path, signature_path);
-        toolPath = await install_swift_on_linux(pkg_path, pkg_name, swift_version);
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
     }
-    const binPath = `${toolPath}/${pkg_name}/usr/bin`;
-    core.debug(`Adding ${binPath} to PATH`);
-    core.addPath(binPath);
-    core.info('Swift installed');
-}
-
-async function download_swift_on_linux(url) {
-    core.debug(`Downloading Swift package from ${url}`);
-    const pkg_path = await tool_cache.downloadTool(url);
-    const signature_path = await tool_cache.downloadTool(`${url}.sig`);
-    core.debug(`Downloaded Swift package to ${pkg_path}`);
-    return { pkg_path, signature_path };
-}
-
-async function install_swift_on_linux(pkg_path, pkg_name, swift_version) {
-    core.debug(`Installing Swift from ${pkg_path}`);
-    const pkg_extracted_path = await tool_cache.extractTar(pkg_path);
-    toolPath = await tool_cache.cacheDir(pkg_extracted_path, pkg_name, swift_version);
-    core.debug(`Extracted Swift to ${pkg_extracted_path}`);
-    core.debug(`Cached Swift to ${toolPath}`);
-    return toolPath;
-}
-
-module.exports = {
-    setup_swift_on_linux
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
 };
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.run = run;
+const core = __importStar(__nccwpck_require__(2186));
+const runner = __importStar(__nccwpck_require__(1005));
+const exec = __importStar(__nccwpck_require__(1514));
+const linux_setup_1 = __nccwpck_require__(4668);
+const mac_setup_1 = __nccwpck_require__(4697);
+async function run() {
+    try {
+        const swiftVersion = core.getInput("swift-version");
+        core.debug(`swiftVersion: ${swiftVersion}`);
+        if (runner.IS_MAC) {
+            await (0, mac_setup_1.mac_setup)(swiftVersion);
+        }
+        else if (runner.IS_LINUX) {
+            await (0, linux_setup_1.linux_setup)(swiftVersion);
+        }
+        else if (runner.IS_WINDOWS) {
+            core.setFailed(`not found OS {platform: ${runner.PLATFORM}, arch: ${runner.ARCH}}`);
+        }
+        else {
+            core.setFailed(`not found OS {platform: ${runner.PLATFORM}, arch: ${runner.ARCH}}`);
+        }
+        const { stdout: swiftVersionOut } = await exec.getExecOutput("swift", [
+            "--version",
+        ]);
+        const { stdout: swiftPathOut } = await exec.getExecOutput("which", [
+            "swift",
+        ]);
+        core.debug(`swift-version: ${swiftVersionOut}`);
+        core.debug(`swift-path: ${swiftPathOut}`);
+    }
+    catch (error) {
+        core.setFailed(error.message);
+    }
+}
 
 
 /***/ }),
@@ -33570,39 +33591,12 @@ module.exports = parseParams
 var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be in strict mode.
 (() => {
-const { setup_swift_on_mac } = __nccwpck_require__(2549);
-const { setup_swift_on_linux } = __nccwpck_require__(836);
-const {
-  IS_WINDOWS,
-  IS_MAC,
-  IS_LINUX,
-} = __nccwpck_require__(1980);
-const core = __nccwpck_require__(272);
-const exec = __nccwpck_require__(8018);
+"use strict";
+var exports = __webpack_exports__;
 
-async function run () {
-  if (IS_MAC) {
-    core.info('Setting up Swift on macOS');
-    core.debug('Setting up Swift on macOS');
-    await setup_swift_on_mac('5.10.1');
-  } else if (IS_LINUX) {
-    core.info('Setting up Swift on Linux');
-    core.debug('Setting up Swift on Linux');
-    await setup_swift_on_linux('5.10.1');
-  } else if (IS_WINDOWS) {
-    core.debug('Setting up Swift on Windows');
-    core.setFailed('Windows is not supported');
-  } else {
-    core.debug('Unsupported OS');
-    core.setFailed('Unsupported OS');
-  }
-  const { stdout: swift_version_out } = await exec.getExecOutput('swift', ['--version']);
-  const { stdout: which_swift_out } = await exec.getExecOutput('which', ['swift']);
-  core.info(`swift --version: ${swift_version_out}`);
-  core.info(`which swift: ${which_swift_out}`);
-}
-
-run();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const main_1 = __nccwpck_require__(399);
+(0, main_1.run)();
 
 })();
 
