@@ -1,7 +1,7 @@
-name: "Setup Swift"
+name: "setup-swift"
 description: "Set up a specific version of Swift"
 inputs:
-  swift-version: # id of input
+  swift-version:
     description: "The version of Swift to set up"
     required: true
     default: "5.10.1"
